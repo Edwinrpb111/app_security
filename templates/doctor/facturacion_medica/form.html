@@ -1,0 +1,549 @@
+{% extends 'home.html' %}
+<title>{% block title %}{{title}}{% endblock %}</title>
+{% load static %}
+{% block css %}
+    <script src="https://cdn.tailwindcss.com"></script>
+{% endblock css %}
+{% block content %}
+<section class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <nav class="bg-blue-100 shadow-lg sticky top-0 z-10">
+        <div class="container mx-auto px-6">
+            <div class="flex space-x-0">
+                <button onclick="showTab('pago')" id="tab-pago" class="tab-button flex-1 py-4 px-6 text-center border-b-3 border-blue-500 text-blue-600 font-semibold transition-all duration-300 hover:bg-blue-50">
+                    <div class="flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span>Datos del Pago</span>
+                    </div>
+                </button>
+                <button onclick="showTab('servicios')" id="tab-servicios" class="tab-button flex-1 py-4 px-6 text-center border-b-3 border-transparent text-gray-500 font-semibold transition-all duration-300 hover:bg-gray-50 hover:text-gray-700">
+                    <div class="flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                        <span>Servicios Facturados</span>
+                    </div>
+                </button>
+                <button onclick="showTab('resumen')" id="tab-resumen" class="tab-button flex-1 py-4 px-6 text-center border-b-3 border-transparent text-gray-500 font-semibold transition-all duration-300 hover:bg-gray-50 hover:text-gray-700">
+                    <div class="flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Resumen y Confirmación</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Datos del Pago -->
+        <div id="content-pago" class="tab-content active">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    Información del Pago
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Atención Médica (Opcional) -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Atención Médica (Opcional)</label>
+                        <select id="atencion" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Sin atención asociada</option>
+                            {% for atencion in atenciones %}
+                                <option value="{{ atencion.id }}" 
+                                    {% if modo_edicion and pago.atencion.id == atencion.id %}selected{% endif %}>
+                                    {{ atencion.paciente.nombre_completo }} - {{ atencion.fecha_atencion|date:"d/m/Y" }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Método de Pago -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Método de Pago *</label>
+                        <select id="metodo_pago" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                            <option value="">Seleccione método de pago</option>
+                            <option value="efectivo" {% if modo_edicion and pago.metodo_pago == 'efectivo' %}selected{% endif %}>Efectivo</option>
+                            <option value="tarjeta" {% if modo_edicion and pago.metodo_pago == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
+                            <option value="transferencia" {% if modo_edicion and pago.metodo_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
+                            <option value="cheque" {% if modo_edicion and pago.metodo_pago == 'cheque' %}selected{% endif %}>Cheque</option>
+                        </select>
+                    </div>
+
+                    <!-- Nombre del Pagador -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre del Pagador</label>
+                        <input type="text" id="nombre_pagador" 
+                               value="{% if modo_edicion %}{{ pago.nombre_pagador }}{% endif %}"
+                               class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Nombre de quien realiza el pago">
+                    </div>
+
+                    <!-- Referencia Externa -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Referencia Externa</label>
+                        <input type="text" id="referencia_externa" 
+                               value="{% if modo_edicion %}{{ pago.referencia_externa }}{% endif %}"
+                               class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="ID de transacción, número de cheque, etc.">
+                    </div>
+
+                    <!-- Observaciones del Pago -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Observaciones del Pago</label>
+                        <textarea id="observaciones_pago" rows="3"
+                                  class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="Notas adicionales sobre el pago...">{% if modo_edicion %}{{ pago.observaciones }}{% endif %}</textarea>
+                    </div>
+
+                    <!-- Observaciones de Facturación -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Observaciones de Facturación</label>
+                        <textarea id="observaciones_facturacion" rows="3"
+                                  class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="Notas sobre el proceso de facturación...">{% if modo_edicion %}{{ facturacion.observaciones_facturacion }}{% endif %}</textarea>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="showTab('servicios')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                        Siguiente: Agregar Servicios
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servicios Facturados -->
+        <div id="content-servicios" class="tab-content hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    Servicios a Facturar
+                </h2>
+
+                <!-- Formulario para Agregar Servicio -->
+                <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Agregar Nuevo Servicio</h3>
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Servicio *</label>
+                            <select id="nuevo_servicio" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Seleccione servicio</option>
+                                {% for servicio in servicios %}
+                                    <option value="{{ servicio.id }}" data-costo="{{ servicio.costo_servicio }}">
+                                        {{ servicio.nombre_servicio }} - ${{ servicio.costo_servicio }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Cantidad *</label>
+                            <input type="number" id="nueva_cantidad" value="1" min="1" 
+                                   class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Precio Unitario *</label>
+                            <input type="number" id="nuevo_precio" step="0.01" min="0" 
+                                   class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Descuento %</label>
+                            <input type="number" id="nuevo_descuento" value="0" min="0" max="100" step="0.01"
+                                   class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Sección de Seguro -->
+                    <div class="mt-4 grid md:grid-cols-3 gap-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="aplica_seguro" class="mr-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <label class="text-sm font-semibold text-gray-700">Aplica Seguro Médico</label>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Valor Cubierto por Seguro</label>
+                            <input type="number" id="valor_seguro" step="0.01" min="0" disabled
+                                   class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Descripción del Seguro</label>
+                            <input type="text" id="descripcion_seguro" disabled
+                                   class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Ej: Saludsa Nivel 2">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="agregarServicio()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl transition duration-300">
+                            <i class="fas fa-plus mr-2"></i>Agregar Servicio
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Servicios Agregados -->
+                <div id="servicios-agregados">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Servicios Agregados</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3">Servicio</th>
+                                    <th class="px-4 py-3">Cantidad</th>
+                                    <th class="px-4 py-3">Precio Unit.</th>
+                                    <th class="px-4 py-3">Descuento</th>
+                                    <th class="px-4 py-3">Seguro</th>
+                                    <th class="px-4 py-3">Subtotal</th>
+                                    <th class="px-4 py-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-servicios">
+                                <!-- Los servicios se agregan dinámicamente aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <div class="text-xl font-bold text-gray-800">
+                            Total: $<span id="total-facturacion">0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-between">
+                    <button onclick="showTab('pago')" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                        Anterior: Datos del Pago
+                    </button>
+                    <button onclick="showTab('resumen')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                        Siguiente: Revisar Resumen
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen y Confirmación -->
+        <div id="content-resumen" class="tab-content hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    Resumen de Facturación
+                </h2>
+
+                <div id="resumen-contenido" class="space-y-6">
+                    <!-- El contenido del resumen se genera dinámicamente -->
+                </div>
+
+                <div class="mt-8 flex justify-between">
+                    <button onclick="showTab('servicios')" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                        Anterior: Servicios
+                    </button>
+                    <div class="space-x-4">
+                        <a href="{{ back_url }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                            Cancelar
+                        </a>
+                        <button onclick="guardarFacturacion()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300">
+                            <i class="fas fa-save mr-2"></i>{{ grabar }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</section>
+
+<script>
+    // Variables globales
+    let serviciosAgregados = [];
+    let serviciosDisponibles = {{ servicios_json|safe }};
+    
+    {% if modo_edicion %}
+        serviciosAgregados = {{ servicios_actuales_json|safe }};
+    {% endif %}
+
+    // Funciones de navegación entre tabs
+    function showTab(tabName) {
+        // Ocultar todos los contenidos
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+            content.classList.remove('active');
+        });
+        
+        // Mostrar el contenido seleccionado
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+        document.getElementById('content-' + tabName).classList.add('active');
+        
+        // Actualizar botones de tab
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('border-blue-500', 'text-blue-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        document.getElementById('tab-' + tabName).classList.add('border-blue-500', 'text-blue-600');
+        document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
+        
+        // Actualizar resumen si es la pestaña de resumen
+        if (tabName === 'resumen') {
+            actualizarResumen();
+        }
+    }
+
+    // Función para manejar el cambio de servicio
+    document.getElementById('nuevo_servicio').addEventListener('change', function() {
+        const servicioId = this.value;
+        const precioInput = document.getElementById('nuevo_precio');
+        
+        if (servicioId) {
+            const servicio = serviciosDisponibles.find(s => s.id == servicioId);
+            if (servicio) {
+                precioInput.value = servicio.costo;
+            }
+        } else {
+            precioInput.value = '';
+        }
+    });
+
+    // Función para manejar el checkbox de seguro
+    document.getElementById('aplica_seguro').addEventListener('change', function() {
+        const valorSeguroInput = document.getElementById('valor_seguro');
+        const descripcionSeguroInput = document.getElementById('descripcion_seguro');
+        
+        if (this.checked) {
+            valorSeguroInput.disabled = false;
+            descripcionSeguroInput.disabled = false;
+        } else {
+            valorSeguroInput.disabled = true;
+            descripcionSeguroInput.disabled = true;
+            valorSeguroInput.value = '';
+            descripcionSeguroInput.value = '';
+        }
+    });
+
+    // Función para agregar servicio
+    function agregarServicio() {
+        const servicioId = document.getElementById('nuevo_servicio').value;
+        const cantidad = parseInt(document.getElementById('nueva_cantidad').value);
+        const precio = parseFloat(document.getElementById('nuevo_precio').value);
+        const descuento = parseFloat(document.getElementById('nuevo_descuento').value) || 0;
+        const aplicaSeguro = document.getElementById('aplica_seguro').checked;
+        const valorSeguro = parseFloat(document.getElementById('valor_seguro').value) || null;
+        const descripcionSeguro = document.getElementById('descripcion_seguro').value;
+
+        if (!servicioId || !cantidad || !precio) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+        }
+
+        const servicio = serviciosDisponibles.find(s => s.id == servicioId);
+        if (!servicio) {
+            alert('Servicio no encontrado');
+            return;
+        }
+
+        // Calcular subtotal
+        const precioBase = aplicaSeguro && valorSeguro !== null ? valorSeguro : precio;
+        const descuentoMonto = (descuento / 100) * precioBase;
+        const precioConDescuento = precioBase - descuentoMonto;
+        const subtotal = precioConDescuento * cantidad;
+
+        const nuevoServicio = {
+            servicio_id: servicioId,
+            nombre_servicio: servicio.nombre,
+            cantidad: cantidad,
+            precio_unitario: precio,
+            descuento_porcentaje: descuento,
+            aplica_seguro: aplicaSeguro,
+            valor_seguro: valorSeguro,
+            descripcion_seguro: descripcionSeguro,
+            subtotal: subtotal
+        };
+
+        serviciosAgregados.push(nuevoServicio);
+        actualizarTablaServicios();
+        limpiarFormularioServicio();
+    }
+
+    // Función para actualizar la tabla de servicios
+    function actualizarTablaServicios() {
+        const tbody = document.getElementById('tabla-servicios');
+        tbody.innerHTML = '';
+        
+        let total = 0;
+        
+        serviciosAgregados.forEach((servicio, index) => {
+            const row = document.createElement('tr');
+            row.className = 'bg-white border-b hover:bg-gray-50';
+            
+            row.innerHTML = `
+                <td class="px-4 py-3 font-medium text-gray-900">${servicio.nombre_servicio}</td>
+                <td class="px-4 py-3">${servicio.cantidad}</td>
+                <td class="px-4 py-3">$${servicio.precio_unitario.toFixed(2)}</td>
+                <td class="px-4 py-3">${servicio.descuento_porcentaje}%</td>
+                <td class="px-4 py-3">
+                    ${servicio.aplica_seguro ? 
+                        `<span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">
+                            ${servicio.descripcion_seguro || 'Sí'} - $${servicio.valor_seguro.toFixed(2)}
+                        </span>` : 
+                        '<span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded">No</span>'
+                    }
+                </td>
+                <td class="px-4 py-3 font-semibold text-green-600">$${servicio.subtotal.toFixed(2)}</td>
+                <td class="px-4 py-3">
+                    <button onclick="eliminarServicio(${index})" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+            total += servicio.subtotal;
+        });
+        
+        document.getElementById('total-facturacion').textContent = total.toFixed(2);
+    }
+
+    // Función para eliminar servicio
+    function eliminarServicio(index) {
+        serviciosAgregados.splice(index, 1);
+        actualizarTablaServicios();
+    }
+
+    // Función para limpiar el formulario de servicio
+    function limpiarFormularioServicio() {
+        document.getElementById('nuevo_servicio').value = '';
+        document.getElementById('nueva_cantidad').value = '1';
+        document.getElementById('nuevo_precio').value = '';
+        document.getElementById('nuevo_descuento').value = '0';
+        document.getElementById('aplica_seguro').checked = false;
+        document.getElementById('valor_seguro').value = '';
+        document.getElementById('descripcion_seguro').value = '';
+        document.getElementById('valor_seguro').disabled = true;
+        document.getElementById('descripcion_seguro').disabled = true;
+    }
+
+    // Función para actualizar el resumen
+    function actualizarResumen() {
+        const resumenContenido = document.getElementById('resumen-contenido');
+        const atencion = document.getElementById('atencion').value;
+        const metodoPago = document.getElementById('metodo_pago').value;
+        const nombrePagador = document.getElementById('nombre_pagador').value;
+        const referenciaExterna = document.getElementById('referencia_externa').value;
+        
+        let total = serviciosAgregados.reduce((sum, servicio) => sum + servicio.subtotal, 0);
+        
+        resumenContenido.innerHTML = `
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 p-4 rounded-xl">
+                    <h3 class="font-semibold text-blue-800 mb-3">Información del Pago</h3>
+                    <p><strong>Atención:</strong> ${atencion ? 'Asociada' : 'Sin atención'}</p>
+                    <p><strong>Método de Pago:</strong> ${metodoPago || 'No especificado'}</p>
+                    <p><strong>Pagador:</strong> ${nombrePagador || 'No especificado'}</p>
+                    <p><strong>Referencia:</strong> ${referenciaExterna || 'Ninguna'}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <h3 class="font-semibold text-green-800 mb-3">Resumen Financiero</h3>
+                    <p><strong>Total de Servicios:</strong> ${serviciosAgregados.length}</p>
+                    <p><strong>Cantidad Total:</strong> ${serviciosAgregados.reduce((sum, s) => sum + s.cantidad, 0)}</p>
+                    <p class="text-lg"><strong>Monto Total:</strong> <span class="text-green-600">$${total.toFixed(2)}</span></p>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl">
+                <h3 class="font-semibold text-gray-800 mb-3">Servicios Detallados</h3>
+                <div class="space-y-2">
+                    ${serviciosAgregados.map(servicio => `
+                        <div class="flex justify-between items-center bg-white p-3 rounded">
+                            <span>${servicio.nombre_servicio} (x${servicio.cantidad})</span>
+                            <span class="font-semibold text-green-600">$${servicio.subtotal.toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Función para guardar la facturación
+    async function guardarFacturacion() {
+        const atencion = document.getElementById('atencion').value;
+        const metodoPago = document.getElementById('metodo_pago').value;
+        const nombrePagador = document.getElementById('nombre_pagador').value;
+        const referenciaExterna = document.getElementById('referencia_externa').value;
+        const observacionesPago = document.getElementById('observaciones_pago').value;
+        const observacionesFacturacion = document.getElementById('observaciones_facturacion').value;
+
+        if (!metodoPago) {
+            alert('El método de pago es obligatorio');
+            showTab('pago');
+            return;
+        }
+
+        if (serviciosAgregados.length === 0) {
+            alert('Debe agregar al menos un servicio');
+            showTab('servicios');
+            return;
+        }
+
+        const data = {
+            pago: {
+                atencion: atencion || null,
+                metodo_pago: metodoPago,
+                nombre_pagador: nombrePagador,
+                referencia_externa: referenciaExterna,
+                observaciones: observacionesPago
+            },
+            servicios: serviciosAgregados,
+            facturacion: {
+                observaciones_facturacion: observacionesFacturacion
+            }
+        };
+
+        try {
+            const url = {% if modo_edicion %}'{% url "doctor:facturacion_medica_update" object.pk %}'{% else %}'{% url "doctor:facturacion_medica_create" %}'{% endif %};
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.msg);
+                window.location.href = '{% url "doctor:facturacion_medica_list" %}';
+            } else {
+                alert('Error: ' + result.msg);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al guardar la facturación');
+        }
+    }
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if modo_edicion %}
+            actualizarTablaServicios();
+        {% endif %}
+    });
+</script>
+
+<!-- CSRF Token -->
+{% csrf_token %}
+
+{% endblock %}

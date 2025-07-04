@@ -1,0 +1,126 @@
+{% extends 'home.html' %}
+<title>{% block title %}{{ grabar }}{% endblock %}</title>
+{% load static %}
+{% block content %}
+<section class="dark:bg-principal">
+    <div class="text-center" data-aos="fade" data-aos-delay="200">
+        <div class="sm:pt-28 lg:pt-4">
+            <h1 class="rounded-2xl bg-indigo-500 px-2 py-1 text-white uppercase text-4xl">
+                {{ grabar }}
+            </h1>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6 py-4">
+            <div class="mx-4 lg:mx-20" data-aos="fade">
+                <div class="bg-white dark:bg-secundario rounded-3xl p-8 max-w-6xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Información Personal -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-blue-300 mb-4">Información Personal</h3>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Nombres *</label>
+                                {{ form.nombres }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Apellidos *</label>
+                                {{ form.apellidos }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">RUC *</label>
+                                {{ form.ruc }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Fecha de Nacimiento *</label>
+                                {{ form.fecha_nacimiento }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Teléfonos *</label>
+                                {{ form.telefonos }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Email</label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+
+                        <!-- Información Profesional -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-blue-300 mb-4">Información Profesional</h3>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Código Único *</label>
+                                {{ form.codigo_unico_doctor }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Especialidades *</label>
+                                {{ form.especialidad }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Dirección *</label>
+                                {{ form.direccion }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Horario de Atención *</label>
+                                {{ form.horario_atencion }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Duración Atención (min) *</label>
+                                {{ form.duracion_atencion }}
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-blue-300">Foto</label>
+                                {{ form.foto }}
+                            </div>
+                            
+                            <div class="flex items-center">
+                                <label class="block text-sm font-medium text-gray-900 dark:text-blue-300 mr-3">Activo</label>
+                                {{ form.activo }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex items-center justify-center space-x-4 pt-8">
+                        <button type="submit"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-8 py-3">
+                            {{ grabar }}
+                        </button>
+                        <a href="{{ back_url }}"
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-lg font-medium px-8 py-3 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600">
+                            Cancelar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+    input[type="text"], input[type="email"], input[type="date"], input[type="number"], textarea, select {
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        width: 100%;
+        background-color: #f9fafb;
+    }
+    .dark input[type="text"], .dark input[type="email"], .dark input[type="date"], .dark input[type="number"], .dark textarea, .dark select {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #f3f4f6;
+    }
+</style>
+{% endblock %}

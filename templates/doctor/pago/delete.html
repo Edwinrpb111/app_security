@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title">
+                        <i class="fas fa-exclamation-triangle"></i> {{ grabar }}
+                    </h3>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-question-circle"></i> Confirmar Eliminación</h5>
+                        <p class="mb-0">{{ description }}</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Detalles del Pago:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li><strong>ID:</strong> #{{ object.id }}</li>
+                                        <li><strong>Método:</strong> {{ object.get_metodo_pago_display }}</li>
+                                        <li><strong>Monto:</strong> ${{ object.monto_total|floatformat:2 }}</li>
+                                        <li><strong>Estado:</strong> 
+                                            {% if object.estado == 'pagado' %}
+                                                <span class="badge bg-success">{{ object.get_estado_display }}</span>
+                                            {% elif object.estado == 'pendiente' %}
+                                                <span class="badge bg-warning">{{ object.get_estado_display }}</span>
+                                            {% elif object.estado == 'cancelado' %}
+                                                <span class="badge bg-danger">{{ object.get_estado_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ object.get_estado_display }}</span>
+                                            {% endif %}
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li><strong>Fecha Creación:</strong> {{ object.fecha_creacion|date:"d/m/Y H:i" }}</li>
+                                        {% if object.fecha_pago %}
+                                            <li><strong>Fecha Pago:</strong> {{ object.fecha_pago|date:"d/m/Y H:i" }}</li>
+                                        {% endif %}
+                                        {% if object.atencion %}
+                                            <li><strong>Paciente:</strong> {{ object.atencion.paciente.nombres }} {{ object.atencion.paciente.apellidos }}</li>
+                                        {% endif %}
+                                        {% if object.nombre_pagador %}
+                                            <li><strong>Pagador:</strong> {{ object.nombre_pagador }}</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            {% if object.referencia_externa %}
+                                <div class="mt-2">
+                                    <strong>Referencia Externa:</strong> {{ object.referencia_externa }}
+                                </div>
+                            {% endif %}
+                            
+                            {% if object.observaciones %}
+                                <div class="mt-2">
+                                    <strong>Observaciones:</strong><br>
+                                    <div class="border rounded p-2 bg-light">{{ object.observaciones }}</div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if object.evidencia_pago %}
+                                <div class="mt-2">
+                                    <strong>Evidencia de Pago:</strong><br>
+                                    <img src="{{ object.evidencia_pago.url }}" alt="Evidencia de pago" 
+                                         class="img-thumbnail" style="max-width: 200px;">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <small>
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Nota:</strong> Esta acción no se puede deshacer. La eliminación del pago 
+                            podría afectar los registros contables y de facturación relacionados.
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ back_url }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Eliminar Definitivamente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

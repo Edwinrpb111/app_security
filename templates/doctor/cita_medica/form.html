@@ -1,0 +1,127 @@
+{% extends 'home.html' %}
+<title>{% block title %}{{ grabar }}{% endblock %}</title>
+{% load static %}
+{% block content %}
+<section class="dark:bg-principal">
+    <div class="text-center" data-aos="fade" data-aos-delay="200">
+        <div class="sm:pt-28 lg:pt-4">
+            <h1 class="rounded-2xl bg-indigo-500 px-2 py-1 text-white uppercase text-4xl">
+                {{ grabar }}
+            </h1>
+        </div>
+
+        <form method="post" class="space-y-6 py-4">
+            <div class="mx-4 lg:mx-20" data-aos="fade">
+                <div class="bg-white dark:bg-secundario rounded-3xl p-8 max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Campo Paciente -->
+                        <div>
+                            <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
+                                Paciente <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.paciente }}
+                            {% if form.paciente.errors %}
+                                <div class="mt-2 text-red-600 dark:text-red-400">
+                                    {% for error in form.paciente.errors %}
+                                        <p class="text-sm">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Estado -->
+                        <div>
+                            <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
+                                Estado <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.estado }}
+                            {% if form.estado.errors %}
+                                <div class="mt-2 text-red-600 dark:text-red-400">
+                                    {% for error in form.estado.errors %}
+                                        <p class="text-sm">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Fecha -->
+                        <div>
+                            <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
+                                Fecha <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.fecha }}
+                            {% if form.fecha.errors %}
+                                <div class="mt-2 text-red-600 dark:text-red-400">
+                                    {% for error in form.fecha.errors %}
+                                        <p class="text-sm">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo Hora -->
+                        <div>
+                            <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
+                                Hora de la Cita <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.hora_cita }}
+                            {% if form.hora_cita.errors %}
+                                <div class="mt-2 text-red-600 dark:text-red-400">
+                                    {% for error in form.hora_cita.errors %}
+                                        <p class="text-sm">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Campo Observaciones -->
+                    <div class="mt-6">
+                        <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
+                            Observaciones
+                        </label>
+                        {{ form.observaciones }}
+                        {% if form.observaciones.errors %}
+                            <div class="mt-2 text-red-600 dark:text-red-400">
+                                {% for error in form.observaciones.errors %}
+                                    <p class="text-sm">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex items-center justify-center space-x-4 pt-6">
+                        <button type="submit"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-8 py-3">
+                            {{ grabar }}
+                        </button>
+                        <a href="{{ back_url }}"
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-lg font-medium px-8 py-3 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600">
+                            Cancelar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+    input[type="text"], input[type="date"], input[type="time"], textarea, select {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        width: 100%;
+        background-color: #f9fafb;
+        font-size: 1rem;
+    }
+    .dark input[type="text"], .dark input[type="date"], .dark input[type="time"], .dark textarea, .dark select {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #f3f4f6;
+    }
+</style>
+{% endblock %}

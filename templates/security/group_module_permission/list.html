@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Permisos Grupo-Módulo</h3>
+                    <a href="{{ create_url }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Permiso
+                    </a>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <form method="get">
+                                <div class="input-group">
+                                    <input type="text" name="q" class="form-control" 
+                                           placeholder="Buscar por grupo o módulo..." 
+                                           value="{{ request.GET.q }}">
+                                    <button class="btn btn-outline-secondary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    {% if group_module_permissions %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Grupo</th>
+                                        <th>Módulo</th>
+                                        <th>Menú</th>
+                                        <th>Permisos</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for permission in group_module_permissions %}
+                                    <tr>
+                                        <td><strong>{{ permission.id }}</strong></td>
+                                        <td>
+                                            <span class="badge bg-info">{{ permission.group.name }}</span>
+                                        </td>
+                                        <td><strong>{{ permission.module.name }}</strong></td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ permission.module.menu.name }}</span>
+                                        </td>
+                                        <td>
+                                            {% for perm in permission.permissions.all %}
+                                                <span class="badge bg-success me-1">{{ perm.name }}</span>
+                                            {% empty %}
+                                                <span class="text-muted">Sin permisos</span>
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'security:group_module_permission_update' permission.pk %}" 
+                                                   class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'security:group_module_permission_delete' permission.pk %}" 
+                                                   class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if is_paginated %}
+                            <nav aria-label="Paginación">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </li>
+                                    
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-users-cog fa-2x mb-3"></i>
+                            <h5>No hay permisos configurados</h5>
+                            <p>Configure los permisos de grupo-módulo para controlar el acceso al sistema.</p>
+                            <a href="{{ create_url }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Configurar Primer Permiso
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

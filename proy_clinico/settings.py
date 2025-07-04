@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 ]
 # Aplicaciones de terceros
 THIRD_PARTY_APPS = [
-    'django_extensions',
+    # 'django_extensions',  # Comentado temporalmente
     'tailwind',
     'theme',
     'django_browser_reload', 
@@ -104,8 +104,8 @@ DATABASES = {
         'NAME': 'BDoctor',
         'USER': 'postgres',
         'PASSWORD': '1234',
-        'HOST': 'localhost',  # o la IP del servidor de base de datos
-        'PORT': '5432',        # puerto por defecto de PostgreSQL
+        'HOST': 'localhost',  # Cambiado a localhost para desarrollo local
+        'PORT':'5432',
     }
 }
 # Password validation

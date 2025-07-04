@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ grabar }}</h3>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.nombre_servicio.id_for_label }}" class="form-label">
+                                        {{ form.nombre_servicio.label }} <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.nombre_servicio }}
+                                    {% if form.nombre_servicio.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.nombre_servicio.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.costo_servicio.id_for_label }}" class="form-label">
+                                        {{ form.costo_servicio.label }} <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        {{ form.costo_servicio }}
+                                    </div>
+                                    {% if form.costo_servicio.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.costo_servicio.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.activo.id_for_label }}" class="form-label">
+                                        {{ form.activo.label }}
+                                    </label>
+                                    <div class="form-check">
+                                        {{ form.activo }}
+                                        <label class="form-check-label" for="{{ form.activo.id_for_label }}">
+                                            Servicio disponible para uso
+                                        </label>
+                                    </div>
+                                    {% if form.activo.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.activo.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                                        {{ form.descripcion.label }}
+                                    </label>
+                                    {{ form.descripcion }}
+                                    {% if form.descripcion.errors %}
+                                        <div class="text-danger small">
+                                            {{ form.descripcion.errors }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Descripción detallada del servicio adicional (opcional)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ back_url }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {{ grabar }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar clases CSS a los campos del formulario
+    const formControls = document.querySelectorAll('input, select, textarea');
+    formControls.forEach(function(control) {
+        if (!control.classList.contains('form-check-input')) {
+            control.classList.add('form-control');
+        }
+    });
+    
+    // Formatear campo de costo
+    const costoField = document.querySelector('input[name="costo_servicio"]');
+    if (costoField) {
+        costoField.setAttribute('step', '0.01');
+        costoField.setAttribute('min', '0');
+        costoField.setAttribute('placeholder', '0.00');
+    }
+    
+    // Auto-resize textarea
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(function(textarea) {
+        textarea.rows = 3;
+        textarea.style.resize = 'vertical';
+    });
+});
+</script>
+{% endblock %}

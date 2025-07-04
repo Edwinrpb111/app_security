@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Gestión de Pagos</h3>
+                    <a href="{{ create_url }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Pago
+                    </a>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <form method="get">
+                                <div class="input-group">
+                                    <input type="text" name="q" class="form-control" 
+                                           placeholder="Buscar pagos..." 
+                                           value="{{ request.GET.q }}">
+                                    <button class="btn btn-outline-secondary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    {% if pagos %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Paciente</th>
+                                        <th>Método de Pago</th>
+                                        <th>Monto</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Creación</th>
+                                        <th>Fecha Pago</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pago in pagos %}
+                                    <tr>
+                                        <td><strong>#{{ pago.id }}</strong></td>
+                                        <td>
+                                            {% if pago.atencion %}
+                                                {{ pago.atencion.paciente.nombres }} {{ pago.atencion.paciente.apellidos }}
+                                            {% else %}
+                                                {{ pago.nombre_pagador|default:"Sin especificar" }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ pago.get_metodo_pago_display }}</span>
+                                        </td>
+                                        <td><strong>${{ pago.monto_total|floatformat:2 }}</strong></td>
+                                        <td>
+                                            {% if pago.estado == 'pagado' %}
+                                                <span class="badge bg-success">{{ pago.get_estado_display }}</span>
+                                            {% elif pago.estado == 'pendiente' %}
+                                                <span class="badge bg-warning">{{ pago.get_estado_display }}</span>
+                                            {% elif pago.estado == 'cancelado' %}
+                                                <span class="badge bg-danger">{{ pago.get_estado_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ pago.get_estado_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ pago.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            {% if pago.fecha_pago %}
+                                                {{ pago.fecha_pago|date:"d/m/Y H:i" }}
+                                            {% else %}
+                                                <span class="text-muted">Sin pagar</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'doctor:pago_update' pago.pk %}" 
+                                                   class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'doctor:pago_delete' pago.pk %}" 
+                                                   class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if is_paginated %}
+                            <nav aria-label="Paginación">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </li>
+                                    
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-credit-card fa-2x mb-3"></i>
+                            <h5>No hay pagos registrados</h5>
+                            <p>Comience registrando el primer pago en el sistema.</p>
+                            <a href="{{ create_url }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Registrar Primer Pago
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

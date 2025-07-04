@@ -318,7 +318,7 @@ class Pago(models.Model):
     activo = models.BooleanField(default=True, verbose_name="Activo")
 
     def __str__(self):
-        return f"Pago {self.id} - {self.atencion} - {self.monto_total}"
+        return f"Pago {self.pk} - {self.atencion} - {self.monto_total}"
 
     def save(self, *args, **kwargs):
         # Auto-asignar fecha de pago cuando el estado cambia a 'pagado'
@@ -379,7 +379,7 @@ class DetallePago(models.Model):
     descuento_porcentaje = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        default=0,
+        default= Decimal(0),
         verbose_name="Descuento %",
         help_text="Descuento aplicado sobre el precio base. Ejemplo: 10 para 10%."
     )
@@ -426,7 +426,7 @@ class DetallePago(models.Model):
     def __str__(self):
         return f"{self.servicio_adicional} - Cantidad: {self.cantidad} - Subtotal: {self.subtotal}"
 
-    class Meta:
+    class Meta: # type: ignore
         verbose_name = "Detalle de Pago"
         verbose_name_plural = "Detalles de Pagos"
 
@@ -443,3 +443,78 @@ class DetallePago(models.Model):
     class Meta:
         verbose_name = "Detalle de Pago"
         verbose_name_plural = "Detalles de Pago"
+'''
+##class FacturacionMedica(models.Model): #Se usara la de arriba 
+    pago = models.OneToOneField(
+        'Pago',
+        on_delete=models.CASCADE,
+        verbose_name="Pago Principal",
+        related_name="facturacion",
+        help_text="Pago principal al que pertenece esta facturación."
+    )
+    
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Fecha de Creación",
+        help_text="Fecha y hora de creación de la facturación."
+    )
+    
+    fecha_actualizacion = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Fecha de Actualización",
+        help_text="Última fecha de modificación de la facturación."
+    )
+    
+    numero_factura = models.CharField(
+        max_length=50,
+        unique=True,
+        verbose_name="Número de Factura",
+        help_text="Número único de factura para identificación."
+    )
+    
+    observaciones_facturacion = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="Observaciones de Facturación",
+        help_text="Notas adicionales sobre el proceso de facturación."
+    )
+    
+    activo = models.BooleanField(
+        default=True,
+        verbose_name="Activo"
+    )
+
+    class Meta:
+        ordering = ['-fecha_creacion']
+        verbose_name = "Facturación Médica"
+        verbose_name_plural = "Facturaciones Médicas"
+
+    def __str__(self):
+        return f"Factura {self.numero_factura} - {self.pago.monto_total}"
+
+    def save(self, *args, **kwargs):
+        if not self.numero_factura:
+            self.numero_factura = self.generar_numero_factura()
+        super().save(*args, **kwargs)
+
+    def generar_numero_factura(self):
+        from django.utils import timezone
+        fecha_actual = timezone.now()
+        año = fecha_actual.year
+        mes = fecha_actual.month
+        
+        ultimo_numero = FacturacionMedica.objects.filter(
+            fecha_creacion__year=año,
+            fecha_creacion__month=mes
+        ).count() + 1
+        
+        return f"FAC-{año}{mes:02d}-{ultimo_numero:04d}"
+
+    @property
+    def total_servicios(self):
+        return self.pago.detalles.count()
+
+    @property
+    def total_cantidad_servicios(self):
+        return sum(detalle.cantidad for detalle in self.pago.detalles.all())
+'''

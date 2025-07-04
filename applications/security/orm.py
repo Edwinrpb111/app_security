@@ -41,6 +41,8 @@ modules = [
            description='Registro de diagnósticos médicos', icon='bi bi-clipboard-pulse', order=2),
     Module(url='recetas/', name='Recetas', menu=menu2, 
            description='Emisión de recetas médicas', icon='bi bi-file-earmark-text', order=3),
+    Module(url='doctor:facturacion_medica_list', name='Facturación Médica', menu=menu2, 
+           description='Sistema completo de facturación médica', icon='bi bi-receipt', order=4),
     
     # Modules for Administración menu
     Module(url='usuarios/', name='Usuarios', menu=menu3, 
@@ -52,7 +54,7 @@ modules = [
 ]
 
 created_modules = Module.objects.bulk_create(modules)
-module1, module2, module3, module4, module5, module6, module7, module8, module9 = created_modules
+module1, module2, module3, module4, module5, module6, module7, module8, module9, module10 = created_modules
 
 # Create Users
 user1 = User.objects.create(
@@ -88,8 +90,9 @@ user1.groups.add(group_medicos)
 user2.groups.add(group_asistentes)
 
 # Create permissions for Patient and Diagnosis models only
-patient_ct = ContentType.objects.get(app_label='doctor', model='patient')
-diagnosis_ct = ContentType.objects.get(app_label='doctor', model='diagnosis')
+patient_ct = ContentType.objects.get(app_label='doctor', model='Paciente')
+diagnosis_ct = ContentType.objects.get(app_label='doctor', model='Diagnostico')
+facturacion_ct = ContentType.objects.get(app_label='doctor', model='facturacionmedica')
 
 # Patient permissions.busca un objeto y, si no existe, lo crea automáticamente. Devueleve una tupla(objeto,encontrado).
 patient_view_tupla = Permission.objects.get_or_create(codename='view_patient', name='Can view Paciente', content_type=patient_ct)
@@ -104,9 +107,16 @@ diagnosis_add = Permission.objects.get_or_create(codename='add_diagnosis', name=
 diagnosis_change = Permission.objects.get_or_create(codename='change_diagnosis', name='Can change Diagnóstico', content_type=diagnosis_ct)[0]
 diagnosis_delete = Permission.objects.get_or_create(codename='delete_diagnosis', name='Can delete Diagnóstico', content_type=diagnosis_ct)[0]
 
+# Facturación Médica permissions
+facturacion_view = Permission.objects.get_or_create(codename='view_facturacionmedica', name='Can view Facturación Médica', content_type=facturacion_ct)[0]
+facturacion_add = Permission.objects.get_or_create(codename='add_facturacionmedica', name='Can add Facturación Médica', content_type=facturacion_ct)[0]
+facturacion_change = Permission.objects.get_or_create(codename='change_facturacionmedica', name='Can change Facturación Médica', content_type=facturacion_ct)[0]
+facturacion_delete = Permission.objects.get_or_create(codename='delete_facturacionmedica', name='Can delete Facturación Médica', content_type=facturacion_ct)[0]
+
 # Add permissions to modules
 module1.permissions.add(patient_view, patient_add, patient_change, patient_delete)
 module5.permissions.add(diagnosis_view, diagnosis_add, diagnosis_change, diagnosis_delete)
+module7.permissions.add(facturacion_view, facturacion_add, facturacion_change, facturacion_delete)
 
 # Create GroupModulePermission records
 # For Médicos with Patient module
@@ -117,6 +127,10 @@ gmp1.permissions.add(patient_view, patient_add, patient_change, patient_delete)
 gmp2 = GroupModulePermission.objects.create(group=group_medicos, module=module5)
 gmp2.permissions.add(diagnosis_view, diagnosis_add, diagnosis_change)
 
+# For Médicos with Facturación Médica module
+gmp5 = GroupModulePermission.objects.create(group=group_medicos, module=module7)
+gmp5.permissions.add(facturacion_view, facturacion_add, facturacion_change, facturacion_delete)
+
 # For Asistentes with Patient module (limited permissions)
 gmp3 = GroupModulePermission.objects.create(group=group_asistentes, module=module1)
 gmp3.permissions.add(patient_view, patient_add)
@@ -124,4 +138,8 @@ gmp3.permissions.add(patient_view, patient_add)
 # For Asistentes with Diagnosis module (view only)
 gmp4 = GroupModulePermission.objects.create(group=group_asistentes, module=module5)
 gmp4.permissions.add(diagnosis_view)
+
+# For Asistentes with Facturación Médica module (limited permissions)
+gmp6 = GroupModulePermission.objects.create(group=group_asistentes, module=module7)
+gmp6.permissions.add(facturacion_view, facturacion_add)
 

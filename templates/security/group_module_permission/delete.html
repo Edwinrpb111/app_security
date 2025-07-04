@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title">
+                        <i class="fas fa-exclamation-triangle"></i> {{ grabar }}
+                    </h3>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-question-circle"></i> Confirmar Eliminación</h5>
+                        <p class="mb-0">{{ description }}</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Detalles del Permiso:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li><strong>ID:</strong> #{{ object.id }}</li>
+                                        <li><strong>Grupo:</strong> 
+                                            <span class="badge bg-info">{{ object.group.name }}</span>
+                                        </li>
+                                        <li><strong>Módulo:</strong> {{ object.module.name }}</li>
+                                        <li><strong>Menú:</strong> 
+                                            <span class="badge bg-secondary">{{ object.module.menu.name }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Permisos Asignados:</strong>
+                                    <div class="mt-2">
+                                        {% for permission in object.permissions.all %}
+                                            <span class="badge bg-success me-1 mb-1">{{ permission.name }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">Sin permisos asignados</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-danger mt-3">
+                        <small>
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Advertencia:</strong> Al eliminar este permiso, los usuarios del grupo 
+                            "{{ object.group.name }}" perderán el acceso al módulo "{{ object.module.name }}". 
+                            Esta acción no se puede deshacer.
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ back_url }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Eliminar Definitivamente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
