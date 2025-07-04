@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
-{% load static %}
-
+{% extends 'home.html' %}
+<title>{% block title %}Lista de Pacientes{% endblock %}</title>
 {% block content %}
 <div class="bg-slate-50 min-h-screen py-8 px-4">
     <div class="max-w-7xl mx-auto">
@@ -8,7 +7,7 @@
         <div class="mb-8">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <!-- Header with gradient -->
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-8 py-6">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
@@ -17,16 +16,16 @@
                                 </svg>
                             </div>
                             <div>
-                                <h1 class="text-3xl font-bold text-white mb-1">Medicamentos</h1>
-                                <p class="text-indigo-100 text-sm">Gestiona todos los medicamentos del sistema</p>
+                                <h1 class="text-3xl font-bold text-white mb-1">Pacientes</h1>
+                                <p class="text-blue-100 text-sm">Gestiona todos los pacientes registrados en el sistema</p>
                             </div>
                         </div>
-                        <a href="{{ create_url }}" 
-                           class="inline-flex items-center px-6 py-3 bg-white hover:bg-slate-50 text-indigo-700 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <a href="{% url 'core:paciente_create' %}" 
+                           class="inline-flex items-center px-6 py-3 bg-white hover:bg-slate-50 text-blue-700 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
-                            Nuevo Medicamento
+                            Agregar Paciente
                         </a>
                     </div>
                 </div>
@@ -43,12 +42,12 @@
                                 </div>
                                 <input type="text" 
                                        name="q" 
-                                       class="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 placeholder-slate-400" 
-                                       placeholder="Buscar medicamentos por nombre o tipo..." 
+                                       class="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 placeholder-slate-400" 
+                                       placeholder="Buscar pacientes por nombre o cédula..." 
                                        value="{{ request.GET.q }}">
                                 <button type="submit" 
                                         class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                                    <span class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                    <span class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
                                         Buscar
                                     </span>
                                 </button>
@@ -59,56 +58,38 @@
 
                 <!-- Content Section -->
                 <div class="p-8">
-                    {% if medicamentos %}
-                        <!-- Medicamentos Table -->
+                    {% if pacientes %}
+                        <!-- Pacientes Table -->
                         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="w-full">
                                     <thead>
                                         <tr class="bg-slate-800 text-white">
-                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">ID</th>
                                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Nombre</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Tipo</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Marca</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Concentración</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Precio</th>
-                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Cédula</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Teléfono</th>
                                             <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-200">
-                                        {% for item in medicamentos %}
+                                        {% for paciente in pacientes %}
                                         <tr class="hover:bg-slate-50 transition-colors duration-150">
-                                            <td class="px-6 py-4">{{ item.id }}</td>
-                                            <td class="px-6 py-4">{{ item.nombre }}</td>
-                                            <td class="px-6 py-4">{{ item.tipo }}</td>
-                                            <td class="px-6 py-4">{{ item.marca }}</td>
-                                            <td class="px-6 py-4">{{ item.concentracion }}</td>
-                                            <td class="px-6 py-4">${{ item.precio }}</td>
-                                            <td class="px-6 py-4">
-                                                {% if item.activo %}
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        Activo
-                                                    </span>
-                                                {% else %}
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        Inactivo
-                                                    </span>
-                                                {% endif %}
-                                            </td>
+                                            <td class="px-6 py-4">{{ paciente.nombres }} {{ paciente.apellidos }}</td>
+                                            <td class="px-6 py-4">{{ paciente.cedula_ecuatoriana }}</td>
+                                            <td class="px-6 py-4">{{ paciente.telefono }}</td>
                                             <td class="px-6 py-4 text-center">
                                                 <div class="flex items-center justify-center space-x-2">
-                                                    <a href="{% url 'core:medicamento_update' item.pk %}" 
+                                                    <a href="{% url 'core:paciente_update' paciente.id %}" 
                                                        class="inline-flex items-center p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors duration-200"
-                                                       title="Editar medicamento">
+                                                       title="Editar paciente">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                         </svg>
                                                     </a>
-                                                    <a href="{% url 'core:medicamento_delete' item.pk %}" 
+                                                    <a href="{% url 'core:paciente_delete' paciente.id %}" 
                                                        class="inline-flex items-center p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                                                       title="Eliminar medicamento"
-                                                       onclick="return confirm('¿Está seguro de que desea eliminar este medicamento?')">
+                                                       title="Eliminar paciente"
+                                                       onclick="return confirm('¿Está seguro de que desea eliminar este paciente?')">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                         </svg>
@@ -129,16 +110,16 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-semibold text-slate-900 mb-2">No hay medicamentos registrados</h3>
+                            <h3 class="text-xl font-semibold text-slate-900 mb-2">No hay pacientes registrados</h3>
                             <p class="text-slate-500 mb-8 max-w-md mx-auto">
-                                Comience agregando el primer medicamento al sistema para gestionar su inventario.
+                                Comience agregando el primer paciente al sistema para gestionar su información.
                             </p>
-                            <a href="{{ create_url }}" 
-                               class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <a href="{% url 'core:paciente_create' %}" 
+                               class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
-                                Crear Primer Medicamento
+                                Crear Primer Paciente
                             </a>
                         </div>
                     {% endif %}

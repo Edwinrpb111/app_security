@@ -1,138 +1,152 @@
 {% extends 'base.html' %}
-{% load static %}
+
+<title>{% block title %}{{ grabar }}{% endblock %}</title>
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">{{ grabar }}</h3>
+<section class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen py-12 px-4">
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-600 rounded-2xl mb-6 shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-slate-900 mb-3">{{ grabar }}</h1>
+            <div class="w-24 h-1 bg-emerald-600 mx-auto rounded-full"></div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <!-- Form Header -->
+            <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 px-8 py-6 border-b border-slate-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-slate-900">Información del Servicio</h2>
+                        <p class="text-sm text-slate-600">Complete la información del servicio adicional</p>
+                    </div>
                 </div>
-                
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.nombre_servicio.id_for_label }}" class="form-label">
-                                        {{ form.nombre_servicio.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    {{ form.nombre_servicio }}
-                                    {% if form.nombre_servicio.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.nombre_servicio.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
+            </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.costo_servicio.id_for_label }}" class="form-label">
-                                        {{ form.costo_servicio.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        {{ form.costo_servicio }}
-                                    </div>
-                                    {% if form.costo_servicio.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.costo_servicio.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.activo.id_for_label }}" class="form-label">
-                                        {{ form.activo.label }}
-                                    </label>
-                                    <div class="form-check">
-                                        {{ form.activo }}
-                                        <label class="form-check-label" for="{{ form.activo.id_for_label }}">
-                                            Servicio disponible para uso
-                                        </label>
-                                    </div>
-                                    {% if form.activo.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.activo.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.descripcion.id_for_label }}" class="form-label">
-                                        {{ form.descripcion.label }}
-                                    </label>
-                                    {{ form.descripcion }}
-                                    {% if form.descripcion.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.descripcion.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Descripción detallada del servicio adicional (opcional)
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
+            <!-- Form Content -->
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="p-8 space-y-8">
+                    <!-- Service Name Field -->
+                    <div class="space-y-2">
+                        <label for="{{ form.nombre_servicio.id_for_label }}" 
+                               class="block text-sm font-semibold text-slate-700 flex items-center">
+                            <svg class="h-5 w-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                            {{ form.nombre_servicio.label }}
+                            <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        {{ form.nombre_servicio }}
+                        {% if form.nombre_servicio.errors %}
+                            <div class="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                {{ form.nombre_servicio.errors }}
                             </div>
                         {% endif %}
+                        <p class="text-xs text-slate-500">Ingrese un nombre descriptivo para el servicio</p>
                     </div>
-                    
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ back_url }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> {{ grabar }}
-                            </button>
+
+                    <!-- Cost and Status Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Service Cost Field -->
+                        <div class="space-y-2">
+                            <label for="{{ form.costo_servicio.id_for_label }}" 
+                                   class="block text-sm font-semibold text-slate-700 flex items-center">
+                                <svg class="h-5 w-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 0V4m0 8v4m0 4h.01"></path>
+                                </svg>
+                                {{ form.costo_servicio.label }}
+                                <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            {{ form.costo_servicio }}
+                            {% if form.costo_servicio.errors %}
+                                <div class="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                    {{ form.costo_servicio.errors }}
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-slate-500">Costo del servicio en dólares</p>
+                        </div>
+
+                        <!-- Active Status Field -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700 flex items-center">
+                                <svg class="h-5 w-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                {{ form.activo.label }}
+                            </label>
+                            {{ form.activo }}
+                            {% if form.activo.errors %}
+                                <div class="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                    {{ form.activo.errors }}
+                                </div>
+                            {% endif %}
+                            <p class="text-xs text-slate-500">Marque esta opción si el servicio está activo y disponible</p>
                         </div>
                     </div>
-                </form>
-            </div>
+
+                    <!-- Description Field -->
+                    <div class="space-y-2">
+                        <label for="{{ form.descripcion.id_for_label }}" 
+                               class="block text-sm font-semibold text-slate-700 flex items-center">
+                            <svg class="h-5 w-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                            </svg>
+                            {{ form.descripcion.label }}
+                            <span class="text-slate-400 text-xs font-normal">(Opcional)</span>
+                        </label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                                {{ form.descripcion.errors }}
+                            </div>
+                        {% endif %}
+                        <p class="text-xs text-slate-500">Descripción detallada del servicio adicional (opcional)</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="bg-slate-50 px-8 py-6 border-t border-slate-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <a href="{{ back_url }}" 
+                           class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border-2 border-slate-300 text-slate-700 font-semibold rounded-2xl hover:bg-white hover:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-200 transition-all duration-200 group">
+                            <svg class="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Cancelar
+                        </a>
+                        
+                        <button type="submit" 
+                                class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-200 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 group">
+                            <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            {{ grabar }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 text-center">
+            <p class="text-sm text-slate-500">
+                ¿Necesitas ayuda? 
+                <a href="#" class="text-emerald-600 hover:text-emerald-700 font-medium hover:underline transition-colors duration-200">
+                    Contacta con soporte
+                </a>
+            </p>
         </div>
     </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Agregar clases CSS a los campos del formulario
-    const formControls = document.querySelectorAll('input, select, textarea');
-    formControls.forEach(function(control) {
-        if (!control.classList.contains('form-check-input')) {
-            control.classList.add('form-control');
-        }
-    });
-    
-    // Formatear campo de costo
-    const costoField = document.querySelector('input[name="costo_servicio"]');
-    if (costoField) {
-        costoField.setAttribute('step', '0.01');
-        costoField.setAttribute('min', '0');
-        costoField.setAttribute('placeholder', '0.00');
-    }
-    
-    // Auto-resize textarea
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(function(textarea) {
-        textarea.rows = 3;
-        textarea.style.resize = 'vertical';
-    });
-});
-</script>
+</section>
 {% endblock %}

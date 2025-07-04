@@ -150,3 +150,80 @@ def paciente_find(request):
         }, status=500)
 
 
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from applications.core.models import Paciente
+from applications.security.components.mixin_crud import PermissionMixin, ListViewMixin, CreateViewMixin, UpdateViewMixin, DeleteViewMixin
+from django.contrib import messages
+
+class PacienteListView(PermissionMixin, ListViewMixin, ListView):
+    template_name = 'core/pacientes/list.html'
+    model = Paciente
+    context_object_name = 'pacientes'
+    permission_required = 'view_paciente'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        filters = Q()
+        if query:
+            filters |= Q(nombres__icontains=query)
+            filters |= Q(apellidos__icontains=query)
+            filters |= Q(cedula_ecuatoriana__icontains=query)
+        return self.model.objects.filter(filters).order_by('apellidos', 'nombres')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['create_url'] = reverse_lazy('core:paciente_create')
+        return context
+
+
+class PacienteCreateView(PermissionMixin, CreateViewMixin, CreateView):
+    model = Paciente
+    template_name = 'core/pacientes/form.html'
+    fields = '__all__'
+    success_url = reverse_lazy('core:paciente_list')
+    permission_required = 'add_paciente'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['grabar'] = 'Registrar Paciente'
+        context['back_url'] = self.success_url
+        return context
+
+    def form_invalid(self, form):
+        print(form.errors)
+        return super().form_invalid(form)
+
+
+class PacienteUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
+    model = Paciente
+    template_name = 'core/pacientes/form.html'
+    fields = '__all__'
+    success_url = reverse_lazy('core:paciente_list')
+    permission_required = 'change_paciente'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['grabar'] = 'Actualizar Paciente'
+        context['back_url'] = self.success_url
+        return context
+
+
+class PacienteDeleteView(PermissionMixin, DeleteViewMixin, DeleteView):
+    model = Paciente
+    template_name = 'core/delete.html'
+    success_url = reverse_lazy('core:paciente_list')
+    permission_required = 'delete_paciente'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['grabar'] = 'Eliminar Paciente'
+        context['description'] = f"¿Desea eliminar al paciente: {self.object.nombres} {self.object.apellidos}?"
+        context['back_url'] = self.success_url
+        return context
+
+    def form_valid(self, form):
+        paciente_nombre = f"{self.object.nombres} {self.object.apellidos}"
+        response = super().form_valid(form)
+        messages.success(self.request, f"Éxito al eliminar al paciente {paciente_nombre}.")
+        return response

@@ -47,13 +47,13 @@ class MenuForm(ModelForm):
 
     def clean_name(self):
         name = self.cleaned_data.get("name")
-        return name.upper()
+        return name.capitalize()
     
     def clean_icon(self):
         icon = self.cleaned_data['icon']
         if not icon:
             raise forms.ValidationError("El campo ícono es requerido.")
-        
+        '''
         # Patrones para FontAwesome v5 y v6
         patterns = [
             r'^(fas|far|fal|fad|fab|fa)\s+fa-\w+',      # fas fa-user (v5)
@@ -68,5 +68,5 @@ class MenuForm(ModelForm):
                 "Formato de ícono inválido. Ejemplos válidos: "
                 "'fas fa-user', 'fa-solid fa-person', 'fa-home'"
             )
-        
+        '''
         return icon

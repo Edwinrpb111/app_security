@@ -1,243 +1,139 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'home.html' %}
+
+<title>{% block title %}{{ grabar }}{% endblock %}</title>
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-10 offset-md-1">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">{{ grabar }}</h3>
-                </div>
+<section class="bg-slate-50 min-h-screen py-12 px-4">
+    <div class="w-full max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-slate-900 mb-2">{{ grabar }}</h1>
+            <div class="w-24 h-1 bg-blue-600 mx-auto rounded-full"></div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <form method="post" enctype="multipart/form-data" class="p-8">
+                {% csrf_token %}
                 
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.atencion.id_for_label }}" class="form-label">
-                                        {{ form.atencion.label }}
-                                    </label>
-                                    {{ form.atencion }}
-                                    {% if form.atencion.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.atencion.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Seleccione la atención médica relacionada (opcional)
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.nombre_pagador.id_for_label }}" class="form-label">
-                                        {{ form.nombre_pagador.label }}
-                                    </label>
-                                    {{ form.nombre_pagador }}
-                                    {% if form.nombre_pagador.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.nombre_pagador.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Nombre de quien realiza el pago (si es diferente al paciente)
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.metodo_pago.id_for_label }}" class="form-label">
-                                        {{ form.metodo_pago.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    {{ form.metodo_pago }}
-                                    {% if form.metodo_pago.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.metodo_pago.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.monto_total.id_for_label }}" class="form-label">
-                                        {{ form.monto_total.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        {{ form.monto_total }}
-                                    </div>
-                                    {% if form.monto_total.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.monto_total.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.estado.id_for_label }}" class="form-label">
-                                        {{ form.estado.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    {{ form.estado }}
-                                    {% if form.estado.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.estado.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.referencia_externa.id_for_label }}" class="form-label">
-                                        {{ form.referencia_externa.label }}
-                                    </label>
-                                    {{ form.referencia_externa }}
-                                    {% if form.referencia_externa.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.referencia_externa.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        ID de transacción para pagos digitales (PayPal, transferencia, etc.)
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.evidencia_pago.id_for_label }}" class="form-label">
-                                        {{ form.evidencia_pago.label }}
-                                    </label>
-                                    {{ form.evidencia_pago }}
-                                    {% if form.evidencia_pago.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.evidencia_pago.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Comprobante o captura de pantalla del pago (opcional)
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-10">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">
-                                        {{ form.observaciones.label }}
-                                    </label>
-                                    {{ form.observaciones }}
-                                    {% if form.observaciones.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.observaciones.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Notas adicionales sobre el pago
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-2">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.activo.id_for_label }}" class="form-label">
-                                        {{ form.activo.label }}
-                                    </label>
-                                    <div class="form-check">
-                                        {{ form.activo }}
-                                        <label class="form-check-label" for="{{ form.activo.id_for_label }}">
-                                            Pago activo
-                                        </label>
-                                    </div>
-                                    {% if form.activo.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.activo.errors }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
+                <!-- Form Fields Section -->
+                <div class="mb-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {{ form.as_p }}
                     </div>
+                </div>
+
+                <!-- Payment Details Section -->
+                <div class="border-t border-slate-200 pt-8">
+                    <div class="flex items-center mb-8">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-semibold text-slate-900">Detalles del Pago</h2>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-slate-200">
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Servicio</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Cantidad</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Precio Unitario</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Descuento (%)</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Aplica Seguro</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Valor Seguro</th>
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Descripción Seguro</th>
+                                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider">Eliminar</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200">
+                                    {% for form in detalle_formset %}
+                                    <tr class="bg-white hover:bg-slate-50 transition-colors duration-150">
+                                        <td class="px-6 py-4 text-sm text-slate-900">{{ form.servicio_adicional }}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-900">{{ form.cantidad }}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-900">{{ form.precio_unitario }}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-900">{{ form.descuento_porcentaje }}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-900">{{ form.aplica_seguro }}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-900">{{ form.valor_seguro }}</td>
+                                        <td class="px-6 py-4 text-sm text-slate-900">{{ form.descripcion_seguro }}</td>
+                                        <td class="px-6 py-4 text-center">
+                                            <div class="flex justify-center">
+                                                {{ form.DELETE }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-12 pt-8 border-t border-slate-200">
+                    <a href="{{ back_url }}" 
+                       class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Cancelar
+                    </a>
                     
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ back_url }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> {{ grabar }}
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                    <button type="submit" 
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {{ grabar }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
+</section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Agregar clases CSS a los campos del formulario
-    const formControls = document.querySelectorAll('input, select, textarea');
-    formControls.forEach(function(control) {
-        if (!control.classList.contains('form-check-input')) {
-            control.classList.add('form-control');
-        }
-    });
-    
-    // Formatear campo de monto
-    const montoField = document.querySelector('input[name="monto_total"]');
-    if (montoField) {
-        montoField.setAttribute('step', '0.01');
-        montoField.setAttribute('min', '0');
-        montoField.setAttribute('placeholder', '0.00');
-    }
-    
-    // Auto-resize textarea
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(function(textarea) {
-        textarea.rows = 3;
-        textarea.style.resize = 'vertical';
-    });
-    
-    // Mostrar/ocultar campos según método de pago
-    const metodoPagoField = document.querySelector('select[name="metodo_pago"]');
-    const referenciaField = document.querySelector('input[name="referencia_externa"]').closest('.form-group');
-    const evidenciaField = document.querySelector('input[name="evidencia_pago"]').closest('.form-group');
-    
-    function togglePaymentFields() {
-        const metodo = metodoPagoField.value;
-        if (metodo === 'efectivo') {
-            referenciaField.style.display = 'none';
-            evidenciaField.style.display = 'none';
-        } else {
-            referenciaField.style.display = 'block';
-            evidenciaField.style.display = 'block';
-        }
-    }
-    
-    if (metodoPagoField) {
-        metodoPagoField.addEventListener('change', togglePaymentFields);
-        togglePaymentFields(); // Ejecutar al cargar
-    }
-});
-</script>
+<style>
+/* Estilos para los campos del formulario Django */
+.form-group {
+    @apply mb-6;
+}
+
+.form-group label {
+    @apply block text-sm font-medium text-slate-700 mb-2;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    @apply w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-slate-900 placeholder-slate-400;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    @apply outline-none;
+}
+
+.errorlist {
+    @apply mt-1 text-sm text-red-600;
+}
+
+.helptext {
+    @apply mt-1 text-sm text-slate-500;
+}
+
+/* Estilos para campos de tabla */
+table input,
+table select {
+    @apply w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500;
+}
+
+table input[type="checkbox"] {
+    @apply w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500;
+}
+</style>
 {% endblock %}

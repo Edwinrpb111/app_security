@@ -1,0 +1,23 @@
+{% extends 'home.html' %}
+<title>{% block title %}{{ grabar }}{% endblock %}</title>
+{% block content %}
+<section class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+        <h1 class="text-xl font-bold text-gray-800 mb-4 text-center">{{ grabar }}</h1>
+        <p class="text-gray-600 text-center mb-6">{{ description }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-between">
+                <a href="{{ back_url }}" 
+                    class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                    Eliminar
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

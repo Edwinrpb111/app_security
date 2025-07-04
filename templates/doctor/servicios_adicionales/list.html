@@ -2,106 +2,232 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title">Servicios Adicionales</h3>
-                    <a href="{{ create_url }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Nuevo Servicio
-                    </a>
-                </div>
-                
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <form method="get">
-                                <div class="input-group">
-                                    <input type="text" name="q" class="form-control" 
-                                           placeholder="Buscar servicios..." 
-                                           value="{{ request.GET.q }}">
-                                    <button class="btn btn-outline-secondary" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </form>
+<div class="bg-slate-50 min-h-screen py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Header with gradient -->
+                <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-8 py-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="text-3xl font-bold text-white mb-1">Servicios Adicionales</h1>
+                                <p class="text-emerald-100 text-sm">Gestiona todos los servicios adicionales del sistema</p>
+                            </div>
                         </div>
+                        <a href="{{ create_url }}" 
+                           class="inline-flex items-center px-6 py-3 bg-white hover:bg-slate-50 text-emerald-700 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Nuevo Servicio
+                        </a>
                     </div>
+                </div>
 
+                <!-- Search Section -->
+                <div class="p-8 border-b border-slate-200">
+                    <div class="max-w-md">
+                        <form method="get">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <input type="text" 
+                                       name="q" 
+                                       class="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors duration-200 placeholder-slate-400" 
+                                       placeholder="Buscar servicios por nombre o descripción..." 
+                                       value="{{ request.GET.q }}">
+                                <button type="submit" 
+                                        class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                                    <span class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                        Buscar
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Content Section -->
+                <div class="p-8">
                     {% if servicios_adicionales %}
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Nombre del Servicio</th>
-                                        <th>Costo</th>
-                                        <th>Descripción</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for servicio in servicios_adicionales %}
-                                    <tr>
-                                        <td><strong>{{ servicio.nombre_servicio }}</strong></td>
-                                        <td>${{ servicio.costo_servicio|floatformat:2 }}</td>
-                                        <td>{{ servicio.descripcion|truncatechars:100|default:"Sin descripción" }}</td>
-                                        <td>
-                                            {% if servicio.activo %}
-                                                <span class="badge bg-success">Activo</span>
-                                            {% else %}
-                                                <span class="badge bg-danger">Inactivo</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{% url 'doctor:servicios_adicionales_update' servicio.pk %}" 
-                                                   class="btn btn-sm btn-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="{% url 'doctor:servicios_adicionales_delete' servicio.pk %}" 
-                                                   class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <!-- Stats Card -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200">
+                                <div class="flex items-center">
+                                    <div class="p-3 bg-emerald-600 rounded-lg">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <p class="text-sm font-medium text-emerald-800">Total Servicios</p>
+                                        <p class="text-2xl font-bold text-emerald-900">{{ servicios_adicionales|length }}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
+                        <!-- Services Table -->
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="bg-slate-800 text-white">
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Nombre del Servicio</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Costo</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Descripción</th>
+                                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
+                                            <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200">
+                                        {% for servicio in servicios_adicionales %}
+                                        <tr class="hover:bg-slate-50 transition-colors duration-150">
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <div class="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                            <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-semibold text-slate-900">{{ servicio.nombre_servicio }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-lg font-bold text-emerald-600">${{ servicio.costo_servicio|floatformat:2 }}</span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm text-slate-600 max-w-xs">
+                                                    {{ servicio.descripcion|truncatechars:100|default:"Sin descripción" }}
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                {% if servicio.activo %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        Activo
+                                                    </span>
+                                                {% else %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        Inactivo
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <div class="flex items-center justify-center space-x-2">
+                                                    <a href="{% url 'doctor:servicios_adicionales_update' servicio.pk %}" 
+                                                       class="inline-flex items-center p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors duration-200"
+                                                       title="Editar servicio">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                        </svg>
+                                                    </a>
+                                                    <a href="{% url 'doctor:servicios_adicionales_delete' servicio.pk %}" 
+                                                       class="inline-flex items-center p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                                                       title="Eliminar servicio"
+                                                       onclick="return confirm('¿Está seguro de que desea eliminar este servicio?')">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Pagination -->
                         {% if is_paginated %}
-                            <nav aria-label="Paginación">
-                                <ul class="pagination justify-content-center">
+                            <div class="mt-8 flex items-center justify-between">
+                                <div class="flex-1 flex justify-between sm:hidden">
                                     {% if page_obj.has_previous %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
-                                        </li>
+                                        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                                           class="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50">
+                                            Anterior
+                                        </a>
                                     {% endif %}
-                                    
-                                    <li class="page-item active">
-                                        <span class="page-link">
-                                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                                        </span>
-                                    </li>
-                                    
                                     {% if page_obj.has_next %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
-                                        </li>
+                                        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                                           class="ml-3 relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50">
+                                            Siguiente
+                                        </a>
                                     {% endif %}
-                                </ul>
-                            </nav>
+                                </div>
+                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="text-sm text-slate-700">
+                                            Mostrando página <span class="font-medium">{{ page_obj.number }}</span> de <span class="font-medium">{{ page_obj.paginator.num_pages }}</span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                            {% if page_obj.has_previous %}
+                                                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                                                   class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50">
+                                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    Anterior
+                                                </a>
+                                            {% endif %}
+                                            <span class="relative inline-flex items-center px-4 py-2 border border-slate-300 bg-emerald-50 text-sm font-medium text-emerald-700">
+                                                {{ page_obj.number }}
+                                            </span>
+                                            {% if page_obj.has_next %}
+                                                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+                                                   class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50">
+                                                    Siguiente
+                                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </a>
+                                            {% endif %}
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
                         {% endif %}
+
                     {% else %}
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle fa-2x mb-3"></i>
-                            <h5>No hay servicios adicionales registrados</h5>
-                            <p>Comience agregando el primer servicio adicional al sistema.</p>
-                            <a href="{{ create_url }}" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Crear Primer Servicio
+                        <!-- Empty State -->
+                        <div class="text-center py-16">
+                            <div class="mx-auto h-24 w-24 text-slate-300 mb-6">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-slate-900 mb-2">No hay servicios adicionales registrados</h3>
+                            <p class="text-slate-500 mb-8 max-w-md mx-auto">
+                                Comience agregando el primer servicio adicional al sistema para ofrecer más opciones a sus pacientes.
+                            </p>
+                            <a href="{{ create_url }}" 
+                               class="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Crear Primer Servicio
                             </a>
                         </div>
                     {% endif %}

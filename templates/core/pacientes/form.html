@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+<title>{% block title %}{{ grabar }}{% endblock %}</title>
+
+{% block content %}
+<section class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen py-12 px-4">
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-600 rounded-2xl mb-6 shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-slate-900 mb-3">{{ grabar }}</h1>
+            <div class="w-24 h-1 bg-emerald-600 mx-auto rounded-full"></div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <!-- Form Header -->
+            <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 px-8 py-6 border-b border-slate-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-slate-900">Información del Paciente</h2>
+                        <p class="text-sm text-slate-600">Complete la información del paciente</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Content -->
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="p-8 space-y-8">
+                    {{ form.as_p }}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="bg-slate-50 px-8 py-6 border-t border-slate-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <a href="{{ back_url }}" 
+                           class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border-2 border-slate-300 text-slate-700 font-semibold rounded-2xl hover:bg-white hover:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-200 transition-all duration-200 group">
+                            <svg class="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Cancelar
+                        </a>
+                        
+                        <button type="submit" 
+                                class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-200 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 group">
+                            <svg class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            {{ grabar }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 text-center">
+            <p class="text-sm text-slate-500">
+                ¿Necesitas ayuda? 
+                <a href="#" class="text-emerald-600 hover:text-emerald-700 font-medium hover:underline transition-colors duration-200">
+                    Contacta con soporte
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
