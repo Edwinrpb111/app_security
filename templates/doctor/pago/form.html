@@ -21,6 +21,47 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {{ form.as_p }}
                     </div>
+                    <div id="paypal-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                        <div class="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full relative">
+                            <button id="close-paypal-modal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 focus:outline-none">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 24 24"><path d="M7.5 3A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5v-13A2.5 2.5 0 0 0 16.5 3h-9zm0 1.5h9A1 1 0 0 1 17.5 5.5v13a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-13A1 1 0 0 1 7.5 4.5zm2.25 3.25a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75zm4.5 0a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75z"/></svg>
+                                <h3 class="text-xl font-semibold mb-2 text-slate-900">Pagar con PayPal</h3>
+                                <p class="text-slate-600 mb-6 text-center">Serás redirigido a PayPal para completar el pago.</p>
+                                <button id="paypal-popup-btn" type="button" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium shadow hover:bg-blue-700 transition">Ir a PayPal</button>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const metodoPagoSelect = document.querySelector('select[name$="metodo_pago"]');
+                        const paypalModal = document.getElementById('paypal-modal');
+                        const closePaypalModal = document.getElementById('close-paypal-modal');
+                        const paypalPopupBtn = document.getElementById('paypal-popup-btn');
+                        if (metodoPagoSelect && paypalModal && closePaypalModal) {
+                            metodoPagoSelect.addEventListener('change', function() {
+                                if (this.value.toLowerCase() === 'paypal') {
+                                    paypalModal.classList.remove('hidden');
+                                }
+                            });
+                            closePaypalModal.addEventListener('click', function() {
+                                paypalModal.classList.add('hidden');
+                                metodoPagoSelect.value = '';
+                            });
+                        }
+                        if (paypalPopupBtn) {
+                            paypalPopupBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const w = 500, h = 700;
+                                const left = (window.screen.width / 2) - (w / 2);
+                                const top = (window.screen.height / 2) - (h / 2);
+                                window.open('https://www.paypal.com/', 'PayPalPopup', `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes,status=yes`);
+                            });
+                        }
+                    });
+                    </script>
                 </div>
 
                 <!-- Payment Details Section -->
@@ -32,6 +73,14 @@
                             </svg>
                         </div>
                         <h2 class="text-2xl font-semibold text-slate-900">Detalles del Pago</h2>
+                    </div>
+
+                    <!-- Botón para agregar más servicios -->
+                    <div class="flex justify-start mt-4">
+                        <button id="add-servicio-btn" type="button" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium shadow hover:bg-emerald-700 transition">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Agregar Servicio
+                        </button>
                     </div>
 
                     <!-- Table Container -->
@@ -70,6 +119,30 @@
                                     {% endfor %}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Totals Summary -->
+                <div id="totals-summary" class="mb-8 flex flex-col items-end">
+                    <div class="bg-slate-100 rounded-xl px-6 py-4 shadow border border-slate-200 w-full max-w-md">
+                        <div class="flex flex-col gap-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-base text-slate-700">Subtotal</span>
+                                <span id="subtotal-pagar" class="text-base font-semibold text-slate-800">$0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-base text-slate-700">Descuento Total</span>
+                                <span id="descuento-total" class="text-base font-semibold text-amber-600">$0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-base text-slate-700">Seguro Total</span>
+                                <span id="seguro-total" class="text-base font-semibold text-emerald-600">$0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2 border-t border-slate-200 pt-2">
+                                <span class="text-lg font-semibold text-slate-700">Total a Pagar</span>
+                                <span id="total-pagar" class="text-2xl font-bold text-blue-600">$0.00</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -137,4 +210,123 @@ table input[type="checkbox"] {
     @apply w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500;
 }
 </style>
+
+<script>
+// --- DetallePago: Carga automática y cálculo de totales ---
+function parseFloatSafe(val) {
+    const n = parseFloat((val || '').toString().replace(',', '.'));
+    return isNaN(n) ? 0 : n;
+}
+function updateTotals() {
+    let subtotal = 0;
+    let descuentoTotal = 0;
+    let seguroTotal = 0;
+    let total = 0;
+    document.querySelectorAll('tbody tr').forEach(row => {
+        const cantidad = parseFloatSafe(row.querySelector('input[name$="cantidad"]').value);
+        const precio = parseFloatSafe(row.querySelector('input[name$="precio_unitario"]').value);
+        const desc = parseFloatSafe(row.querySelector('input[name$="descuento_porcentaje"]').value);
+        const aplicaSeguro = row.querySelector('input[name$="aplica_seguro"]:checked');
+        const valorSeguro = parseFloatSafe(row.querySelector('input[name$="valor_seguro"]').value);
+        const rowSubtotal = cantidad * precio;
+        let rowDescuento = 0;
+        let rowSeguro = 0;
+        if (desc > 0) rowDescuento = rowSubtotal * (desc / 100);
+        if (aplicaSeguro && valorSeguro > 0) rowSeguro = valorSeguro;
+        subtotal += rowSubtotal;
+        descuentoTotal += rowDescuento;
+        seguroTotal += rowSeguro;
+        total += rowSubtotal - rowDescuento - rowSeguro;
+    });
+    document.getElementById('subtotal-pagar').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('descuento-total').textContent = `-$${descuentoTotal.toFixed(2)}`;
+    document.getElementById('seguro-total').textContent = `-$${seguroTotal.toFixed(2)}`;
+    document.getElementById('total-pagar').textContent = `$${total.toFixed(2)}`;
+    // Actualiza el campo monto_total si existe
+    const montoTotalInput = document.querySelector('input[name$="monto_total"]');
+    if (montoTotalInput) montoTotalInput.value = total.toFixed(2);
+}
+function attachServicioListeners() {
+    document.querySelectorAll('select[name$="servicio_adicional"]').forEach(select => {
+        select.addEventListener('change', function() {
+            const row = select.closest('tr');
+            const servicioId = select.value;
+            if (servicioId) {
+                fetch(`/doctor/api/servicio-info/?id=${servicioId}`)
+                    .then(r => r.json())
+                    .then(function(data) {
+                        if (data.costo_servicio !== undefined) {
+                            const precioInput = row.querySelector('input[name$="precio_unitario"]');
+                            if (precioInput) {
+                                precioInput.value = data.costo_servicio;
+                                precioInput.dispatchEvent(new Event('input'));
+                            }
+                        }
+                        if (data.descripcion !== undefined) {
+                            const descInput = row.querySelector('input[name$="descripcion_seguro"]');
+                            if (descInput && !descInput.value) {
+                                descInput.value = data.descripcion;
+                            }
+                        }
+                    });
+            }
+        });
+    });
+}
+function attachDetalleInputsListeners() {
+    document.querySelectorAll('input[name$="cantidad"], input[name$="precio_unitario"], input[name$="descuento_porcentaje"]')
+        .forEach(input => {
+            input.addEventListener('input', updateTotals);
+        });
+}
+function attachSeguroListeners() {
+    document.querySelectorAll('input[name$="aplica_seguro"], input[name$="valor_seguro"]').forEach(input => {
+        input.addEventListener('change', updateTotals);
+        input.addEventListener('input', updateTotals);
+    });
+}
+function attachAddRowListener() {
+    const addBtn = document.getElementById('add-servicio-btn');
+    if (!addBtn) return;
+    addBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tbody = document.querySelector('tbody');
+        const lastRow = tbody.querySelector('tr:last-child');
+        if (!lastRow) return;
+        const newRow = lastRow.cloneNode(true);
+        const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+        let totalForms = parseInt(totalFormsInput.value);
+        // Limpia todos los valores y corrige los nombres/ids de todos los campos
+        newRow.querySelectorAll('input, select, textarea, label').forEach(el => {
+            // Limpia valores
+            if (el.type === 'checkbox') el.checked = false;
+            else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = '';
+            // Corrige name e id para todos los campos
+            if (el.name) el.name = el.name.replace(/-(\d+)-/g, `-${totalForms}-`);
+            if (el.id) el.id = el.id.replace(/_(\d+)_/g, `_${totalForms}_`);
+            if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/_(\d+)_/g, `_${totalForms}_`);
+        });
+        // Elimina posibles campos ocultos de id de instancia previa
+        newRow.querySelectorAll('input[type="hidden"][name$="-id"]')
+            .forEach(el => { el.value = ''; });
+        tbody.appendChild(newRow);
+        totalFormsInput.value = totalForms + 1;
+        attachServicioListeners();
+        attachDetalleInputsListeners();
+        attachSeguroListeners();
+        updateTotals();
+    });
+}
+function initDetallePagoDynamic() {
+    attachServicioListeners();
+    attachDetalleInputsListeners();
+    attachSeguroListeners();
+    attachAddRowListener();
+    updateTotals();
+}
+document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+    initDetallePagoDynamic();
+});
+</script>
 {% endblock %}

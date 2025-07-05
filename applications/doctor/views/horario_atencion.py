@@ -1,9 +1,64 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.db.models import Q
+from django.http import JsonResponse
+from django.views import View
 
 from applications.doctor.models import HorarioAtencion
 from applications.security.components.mixin_crud import CreateViewMixin, DeleteViewMixin, ListViewMixin, PermissionMixin, UpdateViewMixin
+
+
+class HorariosDoctorAPIView(View):
+    def get(self, request):
+        doctor_id = request.GET.get('doctor_id')
+        if not doctor_id:
+            return JsonResponse({'horarios': []})
+        
+        try:
+            horarios = HorarioAtencion.objects.filter(
+                doctor_id=doctor_id,
+                activo=True
+            ).values(
+                'dia_semana',
+                'hora_inicio',
+                'hora_fin',
+                'intervalo_desde',
+                'intervalo_hasta'
+            )
+            
+            horarios_list = []
+            for horario in horarios:
+                horarios_list.append({
+                    'dia_semana': horario['dia_semana'],
+                    'hora_inicio': horario['hora_inicio'].strftime('%H:%M') if horario['hora_inicio'] else None,
+                    'hora_fin': horario['hora_fin'].strftime('%H:%M') if horario['hora_fin'] else None,
+                    'intervalo_desde': horario['intervalo_desde'].strftime('%H:%M') if horario['intervalo_desde'] else None,
+                    'intervalo_hasta': horario['intervalo_hasta'].strftime('%H:%M') if horario['intervalo_hasta'] else None,
+                })
+            
+            return JsonResponse({'horarios': horarios_list})
+        except Exception as e:
+            return JsonResponse({'horarios': []})
+
+
+class DiasOcupadosAPIView(View):
+    def get(self, request):
+        doctor_id = request.GET.get('doctor_id')
+        if not doctor_id:
+            return JsonResponse({'dias_ocupados': []})
+        
+        try:
+            # Obtener todos los días ya ocupados por este doctor
+            dias_ocupados = HorarioAtencion.objects.filter(
+                doctor_id=doctor_id,
+                activo=True
+            ).values_list('dia_semana', flat=True).distinct()
+            
+            return JsonResponse({
+                'dias_ocupados': list(dias_ocupados)
+            })
+        except Exception as e:
+            return JsonResponse({'dias_ocupados': []})
 
 
 class HorarioAtencionListView(PermissionMixin, ListViewMixin, ListView):

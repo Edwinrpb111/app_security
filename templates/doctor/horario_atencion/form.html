@@ -14,7 +14,11 @@
                     {% for field in form %}
                         <div>
                             <label class="block mb-2 text-base font-semibold text-gray-700 dark:text-blue-200 tracking-wide">
-                                {{ field.label }}
+                                {% if field.name == 'intervalo_desde' %}
+                                    Intervalo desde (Descanso)
+                                {% else %}
+                                    {{ field.label }}
+                                {% endif %}
                                 {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                             </label>
                             {{ field }}
@@ -54,4 +58,63 @@
         color: #f3f4f6;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const doctorSelect = document.querySelector('select[name="doctor"]');
+    const diaSemanaSelect = document.querySelector('select[name="dia_semana"]');
+    
+    if (!doctorSelect || !diaSemanaSelect) return;
+    
+    function filtrarDiasDisponibles() {
+        const doctorId = doctorSelect.value;
+        if (!doctorId) {
+            // Si no hay doctor seleccionado, mostrar todos los días
+            Array.from(diaSemanaSelect.options).forEach(option => {
+                if (option.value) option.style.display = '';
+            });
+            return;
+        }
+        
+        // Hacer una petición AJAX para obtener los días ya ocupados por este doctor
+        fetch(`/doctor/api/dias-ocupados/?doctor_id=${doctorId}`)
+            .then(response => response.json())
+            .then(data => {
+                const diasOcupados = data.dias_ocupados || [];
+                const currentDay = diaSemanaSelect.dataset.currentValue; // Para modo edición
+                
+                Array.from(diaSemanaSelect.options).forEach(option => {
+                    if (option.value && diasOcupados.includes(option.value) && option.value !== currentDay) {
+                        option.style.display = 'none';
+                        if (option.selected) {
+                            option.selected = false;
+                        }
+                    } else {
+                        option.style.display = '';
+                    }
+                });
+            })
+            .catch(error => {
+                console.log('Error al cargar días ocupados:', error);
+                // En caso de error, mostrar todos los días
+                Array.from(diaSemanaSelect.options).forEach(option => {
+                    if (option.value) option.style.display = '';
+                });
+            });
+    }
+    
+    // Guardar el valor actual en modo edición
+    if (diaSemanaSelect.value) {
+        diaSemanaSelect.dataset.currentValue = diaSemanaSelect.value;
+    }
+    
+    // Filtrar cuando cambie el doctor
+    doctorSelect.addEventListener('change', filtrarDiasDisponibles);
+    
+    // Filtrar al cargar la página si ya hay un doctor seleccionado
+    if (doctorSelect.value) {
+        filtrarDiasDisponibles();
+    }
+});
+</script>
 {% endblock %}

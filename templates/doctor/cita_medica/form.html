@@ -9,14 +9,15 @@
                 {{ grabar }} 
             </h1>
         </div>
-
         <form method="post" class="space-y-6 py-4">
             <div class="mx-4 lg:mx-20" data-aos="fade">
                 <div class="bg-white dark:bg-secundario rounded-3xl p-8 max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+                    
                     {% csrf_token %}
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Campo Paciente -->
+                         
                         <div>
                             <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
                                 Paciente <span class="text-red-500">*</span>
@@ -66,6 +67,14 @@
                             <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
                                 Fecha <span class="text-red-500">*</span>
                             </label>
+                            <div id="fecha-info" class="hidden mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                                <p class="text-sm text-blue-600 dark:text-blue-400">
+                                    <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Solo puedes agendar citas en los días que el doctor atiende
+                                </p>
+                            </div>
                             {{ form.fecha }}
                             {% if form.fecha.errors %}
                                 <div class="mt-2 text-red-600 dark:text-red-400">
@@ -81,6 +90,14 @@
                             <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
                                 Hora de la Cita <span class="text-red-500">*</span>
                             </label>
+                            <div id="hora-info" class="hidden mb-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                                <p class="text-sm text-green-600 dark:text-green-400">
+                                    <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span id="available-hours-text">Horarios disponibles se mostrarán al seleccionar una fecha</span>
+                                </p>
+                            </div>
                             {{ form.hora_cita }}
                             {% if form.hora_cita.errors %}
                                 <div class="mt-2 text-red-600 dark:text-red-400">
@@ -108,7 +125,12 @@
                     </div>
 
                     <!-- Botones -->
+                     
                     <div class="flex items-center justify-center space-x-4 pt-6">
+                        <button id="btn-agregar-paciente" type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white border border-green-400 text-green-700 font-semibold shadow-sm hover:bg-green-50 hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            <span>Agregar Paciente</span>
+                        </button>
                         <button type="submit"
                             class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-8 py-3">
                             {{ grabar }}
@@ -124,5 +146,359 @@
     </div>
 </section>
 
-<!-- Tailwind 3.4 handles all field styling, no custom CSS needed -->
+{% include 'fragments/modal_paciente.html' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnAgregarPaciente = document.getElementById('btn-agregar-paciente');
+    const modal = document.getElementById('modal-agregar-paciente');
+    const doctorSelect = document.querySelector('select[name="doctor"]');
+    const fechaInput = document.querySelector('input[name="fecha"]');
+    const horaInput = document.querySelector('input[name="hora_cita"]');
+    const fechaInfo = document.getElementById('fecha-info');
+    const horaInfo = document.getElementById('hora-info');
+    const availableHoursText = document.getElementById('available-hours-text');
+    
+    let doctorSchedules = {};
+    
+    const daysOfWeek = {
+        0: 'domingo',
+        1: 'lunes', 
+        2: 'martes',
+        3: 'miércoles',
+        4: 'jueves',
+        5: 'viernes',
+        6: 'sábado'
+    };
+    
+    if (btnAgregarPaciente && modal) {
+        btnAgregarPaciente.addEventListener('click', function() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+    }
+    
+    if (doctorSelect) {
+        doctorSelect.addEventListener('change', function() {
+            const doctorId = this.value;
+            if (doctorId) {
+                loadDoctorSchedules(doctorId);
+                showFechaInfo();
+            } else {
+                clearDateTimeRestrictions();
+                hideFechaInfo();
+                hideHoraInfo();
+            }
+        });
+        
+        if (doctorSelect.value) {
+            loadDoctorSchedules(doctorSelect.value);
+            showFechaInfo();
+        }
+    }
+    
+    if (fechaInput) {
+        fechaInput.addEventListener('change', function() {
+            updateAvailableHours();
+        });
+    }
+    
+    function loadDoctorSchedules(doctorId) {
+        fetch(`/doctor/api/horarios-doctor/?doctor_id=${doctorId}`)
+            .then(response => response.json())
+            .then(data => {
+                doctorSchedules = {};
+                data.horarios.forEach(horario => {
+                    doctorSchedules[horario.dia_semana] = horario;
+                });
+                updateDateRestrictions();
+                updateAvailableHours();
+            })
+            .catch(error => {
+                console.error('Error loading doctor schedules:', error);
+                clearDateTimeRestrictions();
+            });
+    }
+    
+    function updateDateRestrictions() {
+        if (!fechaInput) return;
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        fechaInput.min = today.toISOString().split('T')[0];
+        
+        if (Object.keys(doctorSchedules).length > 0) {
+            fechaInput.setAttribute('data-doctor-days', JSON.stringify(Object.keys(doctorSchedules)));
+            
+            const availableDays = Object.keys(doctorSchedules).map(day => 
+                day.charAt(0).toUpperCase() + day.slice(1)
+            ).join(', ');
+            
+            if (fechaInfo) {
+                const infoText = fechaInfo.querySelector('p');
+                if (infoText) {
+                    infoText.innerHTML = `
+                        <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        El doctor atiende: <strong>${availableDays}</strong>
+                    `;
+                }
+            }
+        }
+    }
+    
+    function updateAvailableHours() {
+        if (!horaInput || !fechaInput.value) {
+            hideHoraInfo();
+            return;
+        }
+        
+        const selectedDate = new Date(fechaInput.value + 'T00:00:00');
+        const dayOfWeek = daysOfWeek[selectedDate.getDay()];
+        const schedule = doctorSchedules[dayOfWeek];
+        
+        if (schedule) {
+            const timeSlots = generateTimeSlots(schedule);
+            updateHoraInput(timeSlots);
+            showHoraInfo(schedule, timeSlots);
+        } else {
+            clearHoraOptions();
+            hideHoraInfo();
+        }
+    }
+    
+    function generateTimeSlots(schedule) {
+        const slots = [];
+        const startTime = parseTime(schedule.hora_inicio);
+        const endTime = parseTime(schedule.hora_fin);
+        const intervalStart = schedule.intervalo_desde ? parseTime(schedule.intervalo_desde) : null;
+        const intervalEnd = schedule.intervalo_hasta ? parseTime(schedule.intervalo_hasta) : null;
+        
+        let current = startTime;
+        const slotDuration = 30;
+        
+        while (current < endTime) {
+            const currentTime = formatTime(current);
+            
+            if (intervalStart && intervalEnd) {
+                if (current < intervalStart || current >= intervalEnd) {
+                    slots.push(currentTime);
+                }
+            } else {
+                slots.push(currentTime);
+            }
+            
+            current += slotDuration;
+        }
+        
+        return slots;
+    }
+    
+    function parseTime(timeString) {
+        const [hours, minutes] = timeString.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+    
+    function formatTime(minutes) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    }
+    
+    function updateHoraInput(timeSlots) {
+        if (horaInput.type === 'time') {
+            horaInput.setAttribute('data-available-times', JSON.stringify(timeSlots));
+            
+            const currentValue = horaInput.value;
+            if (currentValue && !timeSlots.includes(currentValue)) {
+                horaInput.value = '';
+                
+                if (timeSlots.length > 0) {
+                    const selectedDate = new Date(fechaInput.value + 'T00:00:00');
+                    const dayOfWeek = daysOfWeek[selectedDate.getDay()];
+                    const schedule = doctorSchedules[dayOfWeek];
+                    
+                    if (schedule) {
+                        let message = `La hora seleccionada no está disponible. El doctor atiende de ${schedule.hora_inicio} a ${schedule.hora_fin}`;
+                        if (schedule.intervalo_desde && schedule.intervalo_hasta) {
+                            message += ` (con descanso de ${schedule.intervalo_desde} a ${schedule.intervalo_hasta})`;
+                        }
+                        console.log(message);
+                    }
+                }
+            }
+            
+            if (timeSlots.length > 0) {
+                horaInput.setAttribute('step', '1800');
+                horaInput.setAttribute('min', timeSlots[0]);
+                horaInput.setAttribute('max', timeSlots[timeSlots.length - 1]);
+            }
+        }
+    }
+    
+    function clearHoraOptions() {
+        if (horaInput) {
+            horaInput.removeAttribute('data-available-times');
+            horaInput.removeAttribute('step');
+            horaInput.removeAttribute('min');
+            horaInput.removeAttribute('max');
+        }
+    }
+    
+    function isValidTime(timeString, schedule) {
+        if (!timeString || !schedule) return false;
+        
+        const timeMinutes = parseTime(timeString);
+        const startTime = parseTime(schedule.hora_inicio);
+        const endTime = parseTime(schedule.hora_fin);
+        const intervalStart = schedule.intervalo_desde ? parseTime(schedule.intervalo_desde) : null;
+        const intervalEnd = schedule.intervalo_hasta ? parseTime(schedule.intervalo_hasta) : null;
+        
+        if (timeMinutes < startTime || timeMinutes >= endTime) {
+            return false;
+        }
+        
+        if (intervalStart && intervalEnd) {
+            if (timeMinutes >= intervalStart && timeMinutes < intervalEnd) {
+                return false;
+            }
+        }
+        
+        const slotStart = startTime;
+        const slotDuration = 30;
+        let validSlot = false;
+        
+        for (let slot = slotStart; slot < endTime; slot += slotDuration) {
+            if (intervalStart && intervalEnd) {
+                if (slot >= intervalStart && slot < intervalEnd) {
+                    continue;
+                }
+            }
+            
+            if (slot === timeMinutes) {
+                validSlot = true;
+                break;
+            }
+        }
+        
+        return validSlot;
+    }
+    
+    function clearDateTimeRestrictions() {
+        doctorSchedules = {};
+        if (fechaInput) {
+            fechaInput.removeAttribute('data-doctor-days');
+        }
+        clearHoraOptions();
+    }
+    
+    function showFechaInfo() {
+        if (fechaInfo) {
+            fechaInfo.classList.remove('hidden');
+        }
+    }
+    
+    function hideFechaInfo() {
+        if (fechaInfo) {
+            fechaInfo.classList.add('hidden');
+        }
+    }
+    
+    function showHoraInfo(schedule, timeSlots) {
+        if (horaInfo && availableHoursText) {
+            let infoText = `Horario: ${schedule.hora_inicio} - ${schedule.hora_fin}`;
+            
+            if (schedule.intervalo_desde && schedule.intervalo_hasta) {
+                infoText += ` (Descanso: ${schedule.intervalo_desde} - ${schedule.intervalo_hasta})`;
+            }
+            
+            infoText += ` | Citas cada 30 min`;
+            
+            availableHoursText.innerHTML = `
+                <svg class="inline w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+                ${infoText}
+            `;
+            
+            horaInfo.classList.remove('hidden');
+        }
+    }
+    
+    function hideHoraInfo() {
+        if (horaInfo) {
+            horaInfo.classList.add('hidden');
+        }
+    }
+    
+    if (fechaInput) {
+        fechaInput.addEventListener('input', function() {
+            const selectedDate = new Date(this.value + 'T00:00:00');
+            const dayOfWeek = daysOfWeek[selectedDate.getDay()];
+            
+            if (Object.keys(doctorSchedules).length > 0 && !doctorSchedules[dayOfWeek]) {
+                this.setCustomValidity('El doctor no atiende este día de la semana');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    if (horaInput && horaInput.type === 'time') {
+        horaInput.addEventListener('input', function() {
+            const availableTimes = JSON.parse(this.getAttribute('data-available-times') || '[]');
+            
+            if (availableTimes.length > 0 && !availableTimes.includes(this.value)) {
+                this.setCustomValidity('Esta hora no está disponible en el horario del doctor');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        horaInput.addEventListener('change', function() {
+            const availableTimes = JSON.parse(this.getAttribute('data-available-times') || '[]');
+            
+            if (availableTimes.length > 0 && this.value && !availableTimes.includes(this.value)) {
+                alert('Esta hora no está disponible. Por favor seleccione una hora dentro del horario de atención del doctor.');
+                this.value = '';
+                this.focus();
+            }
+        });
+        
+        horaInput.addEventListener('blur', function() {
+            if (this.value) {
+                const availableTimes = JSON.parse(this.getAttribute('data-available-times') || '[]');
+                
+                if (availableTimes.length > 0 && !availableTimes.includes(this.value)) {
+                    const selectedDate = new Date(fechaInput.value + 'T00:00:00');
+                    const dayOfWeek = daysOfWeek[selectedDate.getDay()];
+                    const schedule = doctorSchedules[dayOfWeek];
+                    
+                    if (schedule) {
+                        let message = `Hora no disponible. El doctor atiende de ${schedule.hora_inicio} a ${schedule.hora_fin}`;
+                        if (schedule.intervalo_desde && schedule.intervalo_hasta) {
+                            message += ` (con descanso de ${schedule.intervalo_desde} a ${schedule.intervalo_hasta})`;
+                        }
+                        message += '. Las citas son cada 30 minutos.';
+                        
+                        alert(message);
+                        this.value = '';
+                        this.focus();
+                    }
+                }
+            }
+        });
+    }
+});
+
+function cerrarModalPaciente() {
+    const modal = document.getElementById('modal-agregar-paciente');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+</script>
 {% endblock %}
+

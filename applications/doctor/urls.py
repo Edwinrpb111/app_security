@@ -2,9 +2,10 @@ from django.urls import path
 
 from applications.doctor.views.atencion_medica import AtencionListView, AtencionCreateView, AtencionUpdateView, AtencionDeleteView, AtencionCreateFromCitaView, imprimir_receta_pdf
 from applications.doctor.views.cita_medica import CitaMedicaListView, CitaMedicaCreateView, CitaMedicaUpdateView, CitaMedicaDeleteView, calendario_eventos_api, CitaMedicaMainListView
-from applications.doctor.views.horario_atencion import HorarioAtencionListView, HorarioAtencionCreateView, HorarioAtencionUpdateView, HorarioAtencionDeleteView
+from applications.doctor.views.horario_atencion import HorarioAtencionListView, HorarioAtencionCreateView, HorarioAtencionUpdateView, HorarioAtencionDeleteView, DiasOcupadosAPIView, HorariosDoctorAPIView
 from applications.doctor.views.servicios_adicionales import ServiciosAdicionalesListView, ServiciosAdicionalesCreateView, ServiciosAdicionalesUpdateView, ServiciosAdicionalesDeleteView
 from applications.doctor.views.pago import PagoListView, PagoCreateView, PagoUpdateView, PagoDeleteView
+from applications.doctor.views.api_servicio import servicio_info
 #from applications.doctor.views.facturacion_medica import FacturacionMedicaListView, FacturacionMedicaCreateView, FacturacionMedicaUpdateView, FacturacionMedicaDeleteView
 
 app_name='doctor' # define un espacio de nombre para la aplicacion
@@ -43,7 +44,11 @@ urlpatterns = [
     path('pago/update/<int:pk>/', PagoUpdateView.as_view(), name='pago_update'),
     path('pago/delete/<int:pk>/', PagoDeleteView.as_view(), name='pago_delete'),
     
-    
+    # API
+    path('api/servicio-info/', servicio_info, name='api_servicio_info'),
+    path('api/dias-ocupados/', DiasOcupadosAPIView.as_view(), name='api_dias_ocupados'),
+    path('api/horarios-doctor/', HorariosDoctorAPIView.as_view(), name='api_horarios_doctor'),
+
     # Facturación Médica  ver si se hace detalle pago 
     #path('facturacion-medica/', FacturacionMedicaListView.as_view(), name='facturacion_medica_list'),
     #path('facturacion-medica/create/', FacturacionMedicaCreateView.as_view(), name='facturacion_medica_create'),
