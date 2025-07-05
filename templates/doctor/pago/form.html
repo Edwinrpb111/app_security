@@ -51,6 +51,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200">
+                                    {{ detalle_formset.management_form }}
                                     {% for form in detalle_formset %}
                                     <tr class="bg-white hover:bg-slate-50 transition-colors duration-150">
                                         <td class="px-6 py-4 text-sm text-slate-900">{{ form.servicio_adicional }}</td>

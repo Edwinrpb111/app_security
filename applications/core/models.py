@@ -396,7 +396,7 @@ class Empleado(models.Model):
     cedula_ecuatoriana = models.CharField(
         max_length=10,
         verbose_name="Cédula",
-        validators=[valida_cedula],
+        #validators=[valida_cedula],
         help_text="Ingrese el número de cédula sin espacios ni guiones."
     )
     dni = models.CharField(

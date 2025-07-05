@@ -24,10 +24,13 @@ class HorarioAtencionListView(PermissionMixin, ListViewMixin, ListView):
         return context
 
 
+
+from applications.doctor.forms.horarioAtencion import HorarioAtencionForm
+
 class HorarioAtencionCreateView(PermissionMixin, CreateViewMixin, CreateView):
     model = HorarioAtencion
+    form_class = HorarioAtencionForm
     template_name = 'doctor/horario_atencion/form.html'
-    fields = ['dia_semana', 'hora_inicio', 'hora_fin', 'intervalo_desde', 'intervalo_hasta', 'activo']
     success_url = reverse_lazy('doctor:horario_atencion_list')
     permission_required = 'add_horarioatencion'
 
@@ -40,8 +43,8 @@ class HorarioAtencionCreateView(PermissionMixin, CreateViewMixin, CreateView):
 
 class HorarioAtencionUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
     model = HorarioAtencion
+    form_class = HorarioAtencionForm
     template_name = 'doctor/horario_atencion/form.html'
-    fields = ['dia_semana', 'hora_inicio', 'hora_fin', 'intervalo_desde', 'intervalo_hasta', 'activo']
     success_url = reverse_lazy('doctor:horario_atencion_list')
     permission_required = 'change_horarioatencion'
 

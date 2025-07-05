@@ -5,34 +5,35 @@
 <section class="dark:bg-principal">
     <div class="text-center" data-aos="fade" data-aos-delay="200">
         <div class="sm:pt-28 lg:pt-4">
-            <h1 class="rounded-2xl bg-indigo-500 px-2 py-1 text-white uppercase text-4xl">{{ grabar }}</h1>
+            <h1 class="rounded-2xl bg-indigo-500 px-2 py-1 text-white camelcase text-4xl">{{ grabar }}</h1>
         </div>
-        <form method="post" enctype="multipart/form-data" class="space-y-6 py-4">
-            <div class="mx-4 lg:mx-20" data-aos="fade">
-                <div class="bg-white dark:bg-secundario rounded-3xl p-8 max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="200">
-                    {% csrf_token %}
-                    
+        <form method="post" enctype="multipart/form-data" class="py-4">
+            <div class="mx-auto max-w-2xl bg-white dark:bg-secundario rounded-3xl p-8 shadow-lg">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {% for field in form %}
-                        <div class="mb-6">
-                            <label class="block mb-2 text-lg font-medium text-gray-900 dark:text-blue-300">
+                        <div>
+                            <label class="block mb-2 text-base font-semibold text-gray-700 dark:text-blue-200 tracking-wide">
                                 {{ field.label }}
                                 {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                             </label>
                             {{ field }}
+                            {% if field.help_text %}
+                                <p class="text-xs text-gray-400 mt-1">{{ field.help_text }}</p>
+                            {% endif %}
                             {% if field.errors %}
-                                <div class="mt-2 text-red-600 dark:text-red-400">
+                                <div class="mt-1 text-red-600 dark:text-red-400">
                                     {% for error in field.errors %}
-                                        <p class="text-sm">{{ error }}</p>
+                                        <p class="text-xs">{{ error }}</p>
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
                     {% endfor %}
-
-                    <div class="flex items-center justify-center space-x-4 pt-6">
-                        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-lg px-8 py-3">{{ grabar }}</button>
-                        <a href="{{ back_url }}" class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-lg font-medium px-8 py-3">Cancelar</a>
-                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+                    <button type="submit" class="flex-1 text-white bg-blue-700 hover:bg-blue-800 font-semibold rounded-lg text-lg px-8 py-3 transition-colors">{{ grabar }}</button>
+                    <a href="{{ back_url }}" class="flex-1 text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-lg font-semibold px-8 py-3 transition-colors">Cancelar</a>
                 </div>
             </div>
         </form>

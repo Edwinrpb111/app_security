@@ -2,101 +2,55 @@
 {% load static %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">{{ grabar }}</h3>
-                </div>
-                
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.group.id_for_label }}" class="form-label">
-                                        {{ form.group.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    {{ form.group }}
-                                    {% if form.group.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.group.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Seleccione el grupo de usuarios
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.module.id_for_label }}" class="form-label">
-                                        {{ form.module.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    {{ form.module }}
-                                    {% if form.module.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.module.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Seleccione el módulo del sistema
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.permissions.id_for_label }}" class="form-label">
-                                        {{ form.permissions.label }} <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
-                                        {{ form.permissions }}
-                                    </div>
-                                    {% if form.permissions.errors %}
-                                        <div class="text-danger small">
-                                            {{ form.permissions.errors }}
-                                        </div>
-                                    {% endif %}
-                                    <div class="form-text">
-                                        Seleccione los permisos que tendrá el grupo sobre este módulo
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
+<div class="bg-slate-50 min-h-screen py-8 px-4">
+    <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-indigo-800 mb-2">{{ grabar }}</h1>
+            <div class="w-20 h-1 bg-indigo-500 mx-auto rounded-full"></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow border border-slate-200 overflow-hidden">
+            <form method="post" enctype="multipart/form-data" class="p-8">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block mb-2 text-base font-semibold text-slate-700">{{ form.group.label }}<span class="text-red-500">*</span></label>
+                        {{ form.group }}
+                        {% if form.group.errors %}
+                            <div class="mt-2 text-red-600 text-xs">{{ form.group.errors }}</div>
                         {% endif %}
-                        
-                        <div class="alert alert-info">
-                            <small>
-                                <i class="fas fa-info-circle"></i>
-                                <strong>Nota:</strong> Los permisos definen qué acciones puede realizar cada grupo sobre el módulo seleccionado.
-                                Evite duplicar combinaciones de grupo-módulo.
-                            </small>
-                        </div>
+                        <div class="mt-1 text-xs text-slate-500">Seleccione el grupo de usuarios</div>
                     </div>
-                    
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ back_url }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> {{ grabar }}
-                            </button>
-                        </div>
+                    <div>
+                        <label class="block mb-2 text-base font-semibold text-slate-700">{{ form.module.label }}<span class="text-red-500">*</span></label>
+                        {{ form.module }}
+                        {% if form.module.errors %}
+                            <div class="mt-2 text-red-600 text-xs">{{ form.module.errors }}</div>
+                        {% endif %}
+                        <div class="mt-1 text-xs text-slate-500">Seleccione el módulo del sistema</div>
                     </div>
-                </form>
-            </div>
+                </div>
+                <div class="mb-8">
+                    <label class="block mb-2 text-base font-semibold text-slate-700">{{ form.permissions.label }}<span class="text-red-500">*</span></label>
+                    <div class="border rounded-xl p-4 bg-slate-50 max-h-72 overflow-y-auto">
+                        {{ form.permissions }}
+                    </div>
+                    {% if form.permissions.errors %}
+                        <div class="mt-2 text-red-600 text-xs">{{ form.permissions.errors }}</div>
+                    {% endif %}
+                    <div class="mt-1 text-xs text-slate-500">Seleccione los permisos que tendrá el grupo sobre este módulo</div>
+                </div>
+                {% if form.non_field_errors %}
+                    <div class="mb-4 text-red-600 text-sm">{{ form.non_field_errors }}</div>
+                {% endif %}
+                <div class="mb-6 text-indigo-700 bg-indigo-50 rounded-xl p-4 text-xs flex items-center gap-2">
+                    <svg class="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"></path></svg>
+                    <span><strong>Nota:</strong> Los permisos definen qué acciones puede realizar cada grupo sobre el módulo seleccionado. Evite duplicar combinaciones de grupo-módulo.</span>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-200">
+                    <a href="{{ back_url }}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-300 text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all duration-200">Cancelar</a>
+                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md">{{ grabar }}</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

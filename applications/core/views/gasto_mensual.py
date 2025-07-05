@@ -9,7 +9,7 @@ from applications.security.components.mixin_crud import CreateViewMixin, DeleteV
 class GastoMensualListView(PermissionMixin, ListViewMixin, ListView):
     template_name = 'core/gasto_mensual/list.html'
     model = GastoMensual
-    context_object_name = 'gastos_mensual'
+    context_object_name = 'gastos_mensuales'
     permission_required = 'view_gastomensual'
 
     def get_queryset(self):
@@ -25,10 +25,13 @@ class GastoMensualListView(PermissionMixin, ListViewMixin, ListView):
         return context
 
 
+
+from applications.core.forms.gasto_mensual import GastoMensualForm
+
 class GastoMensualCreateView(PermissionMixin, CreateViewMixin, CreateView):
     model = GastoMensual
     template_name = 'core/gasto_mensual/form.html'
-    fields = ['tipo_gasto', 'fecha', 'valor', 'observacion']
+    form_class = GastoMensualForm
     success_url = reverse_lazy('core:gasto_mensual_list')
     permission_required = 'add_gastomensual'
 
@@ -39,10 +42,11 @@ class GastoMensualCreateView(PermissionMixin, CreateViewMixin, CreateView):
         return context
 
 
+
 class GastoMensualUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
     model = GastoMensual
     template_name = 'core/gasto_mensual/form.html'
-    fields = ['tipo_gasto', 'fecha', 'valor', 'observacion']
+    form_class = GastoMensualForm
     success_url = reverse_lazy('core:gasto_mensual_list')
     permission_required = 'change_gastomensual'
 

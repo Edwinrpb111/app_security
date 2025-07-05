@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from applications.core.models import Empleado
 from applications.security.components.mixin_crud import CreateViewMixin, DeleteViewMixin, ListViewMixin, PermissionMixin, UpdateViewMixin
+from applications.core.forms.empleado import EmpleadoForm
 
 
 class EmpleadoListView(PermissionMixin, ListViewMixin, ListView):
@@ -14,12 +15,14 @@ class EmpleadoListView(PermissionMixin, ListViewMixin, ListView):
 
     def get_queryset(self):
         q1 = self.request.GET.get('q')
-        if q1 is not None:
-            self.query.add(Q(nombres__icontains=q1), Q.OR)
-            self.query.add(Q(apellidos__icontains=q1), Q.OR)
-            self.query.add(Q(cedula_ecuatoriana__icontains=q1), Q.OR)
-            self.query.add(Q(cargo__nombre__icontains=q1), Q.OR)
-        return self.model.objects.filter(self.query).select_related('cargo')
+        query = Q()
+        if q1:
+            query |= Q(nombres__icontains=q1)
+            query |= Q(apellidos__icontains=q1)
+            query |= Q(cedula_ecuatoriana__icontains=q1)
+            query |= Q(cargo__nombre__icontains=q1)
+        from applications.core.models import Empleado
+        return Empleado.objects.filter(query).select_related('cargo')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -30,8 +33,7 @@ class EmpleadoListView(PermissionMixin, ListViewMixin, ListView):
 class EmpleadoCreateView(PermissionMixin, CreateViewMixin, CreateView):
     model = Empleado
     template_name = 'core/empleado/form.html'
-    fields = ['nombres', 'apellidos', 'cedula_ecuatoriana', 'dni', 'fecha_nacimiento', 
-              'cargo', 'sueldo', 'fecha_ingreso', 'direccion', 'foto', 'activo']
+    form_class = EmpleadoForm
     success_url = reverse_lazy('core:empleado_list')
     permission_required = 'add_empleado'
 
@@ -45,8 +47,7 @@ class EmpleadoCreateView(PermissionMixin, CreateViewMixin, CreateView):
 class EmpleadoUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
     model = Empleado
     template_name = 'core/empleado/form.html'
-    fields = ['nombres', 'apellidos', 'cedula_ecuatoriana', 'dni', 'fecha_nacimiento', 
-              'cargo', 'sueldo', 'fecha_ingreso', 'direccion', 'foto', 'activo']
+    form_class = EmpleadoForm
     success_url = reverse_lazy('core:empleado_list')
     permission_required = 'change_empleado'
 

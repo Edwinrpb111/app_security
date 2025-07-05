@@ -372,19 +372,28 @@
 
                         <div class="space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
+                                <div class="relative">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Motivo de Consulta *</label>
-                                    <textarea id="id_motivo_consulta" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="3" placeholder="Ingrese el motivo de la consulta...">{{ atencion.motivo_consulta|default:'' }}</textarea>
+                                    <textarea id="id_motivo_consulta" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14" rows="3" placeholder="Ingrese el motivo de la consulta...">{{ atencion.motivo_consulta|default:'' }}</textarea>
+                                    <button type="button" onclick="startVoiceInput('id_motivo_consulta')" class="absolute bottom-3 right-3 bg-blue-100 hover:bg-blue-200 rounded-full p-2 shadow focus:outline-none" tabindex="-1">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v2m0 0a4 4 0 004-4h-8a4 4 0 004 4zm0 0V6m0 0a4 4 0 00-4 4h8a4 4 0 00-4-4z"/></svg>
+                                    </button>
                                 </div>
-                                <div>
+                                <div class="relative">
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Síntomas *</label>
-                                    <textarea id="id_sintomas" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="3" placeholder="Describa los síntomas presentados...">{{ atencion.sintomas|default:'' }}</textarea>
+                                    <textarea id="id_sintomas" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14" rows="3" placeholder="Describa los síntomas presentados...">{{ atencion.sintomas|default:'' }}</textarea>
+                                    <button type="button" onclick="startVoiceInput('id_sintomas')" class="absolute bottom-3 right-3 bg-blue-100 hover:bg-blue-200 rounded-full p-2 shadow focus:outline-none" tabindex="-1">
+                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v2m0 0a4 4 0 004-4h-8a4 4 0 004 4zm0 0V6m0 0a4 4 0 00-4 4h8a4 4 0 00-4-4z"/></svg>
+                                    </button>
                                 </div>
                             </div>
 
-                            <div>
+                            <div class="relative">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Examen Físico</label>
-                                <textarea id="id_examen_fisico" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="4" placeholder="Hallazgos del examen físico...">{{ atencion.examen_fisico|default:'' }}</textarea>
+                                <textarea id="id_examen_fisico" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14" rows="4" placeholder="Hallazgos del examen físico...">{{ atencion.examen_fisico|default:'' }}</textarea>
+                                <button type="button" onclick="startVoiceInput('id_examen_fisico')" class="absolute bottom-3 right-3 bg-blue-100 hover:bg-blue-200 rounded-full p-2 shadow focus:outline-none" tabindex="-1">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v2m0 0a4 4 0 004-4h-8a4 4 0 004 4zm0 0V6m0 0a4 4 0 00-4 4h8a4 4 0 00-4-4z"/></svg>
+                                </button>
                             </div>
                            <!-- diagnosticos-->
                            <div class="bg-pink-50 border border-gray-300 rounded-lg ">
@@ -430,19 +439,28 @@
                         </h3>
 
                         <div class="space-y-6">
-                            <div>
+                            <div class="relative">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Plan de Tratamiento *</label>
-                                <textarea id="id_tratamiento" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="4" placeholder="Detalle el plan de tratamiento...">{{ atencion.tratamiento|default:'' }}</textarea>
+                                <textarea id="id_tratamiento" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14" rows="4" placeholder="Detalle el plan de tratamiento...">{{ atencion.tratamiento|default:'' }}</textarea>
+                                <button type="button" onclick="startVoiceInput('id_tratamiento')" class="absolute bottom-3 right-3 bg-blue-100 hover:bg-blue-200 rounded-full p-2 shadow focus:outline-none" tabindex="-1">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v2m0 0a4 4 0 004-4h-8a4 4 0 004 4zm0 0V6m0 0a4 4 0 00-4 4h8a4 4 0 00-4-4z"/></svg>
+                                </button>
                             </div>
 
-                            <div>
+                            <div class="relative">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Exámenes Solicitados</label>
-                                <textarea id="id_examenes_enviados" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="3" placeholder="Lista de exámenes solicitados...">{{ atencion.examenes_enviados|default:'' }}</textarea>
+                                <textarea id="id_examenes_enviados" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14" rows="3" placeholder="Lista de exámenes solicitados...">{{ atencion.examenes_enviados|default:'' }}</textarea>
+                                <button type="button" onclick="startVoiceInput('id_examenes_enviados')" class="absolute bottom-3 right-3 bg-blue-100 hover:bg-blue-200 rounded-full p-2 shadow focus:outline-none" tabindex="-1">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v2m0 0a4 4 0 004-4h-8a4 4 0 004 4zm0 0V6m0 0a4 4 0 00-4 4h8a4 4 0 00-4-4z"/></svg>
+                                </button>
                             </div>
 
-                            <div>
+                            <div class="relative">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Comentario Adicional</label>
-                                <textarea id="id_comentario_adicional" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="3" placeholder="Comentarios adicionales...">{{ atencion.comentario_adicional|default:'' }}</textarea>
+                                <textarea id="id_comentario_adicional" class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-14" rows="3" placeholder="Comentarios adicionales...">{{ atencion.comentario_adicional|default:'' }}</textarea>
+                                <button type="button" onclick="startVoiceInput('id_comentario_adicional')" class="absolute bottom-3 right-3 bg-blue-100 hover:bg-blue-200 rounded-full p-2 shadow focus:outline-none" tabindex="-1">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v2m0 0a4 4 0 004-4h-8a4 4 0 004 4zm0 0V6m0 0a4 4 0 00-4 4h8a4 4 0 00-4-4z"/></svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -781,13 +799,35 @@
         }
  </style>
 
- <script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+<script>
  // Recibir el contexto del paciente desde Django
  const pacienteDesdeServidor = {{ paciente_json|safe }};
  const medicamentosDesdeServidor = {{ medicamentos_json|safe }};
  const modoEdicion = {{ modo_edicion|yesno:"true,false" }};
 
 // ==============================
+
+function startVoiceInput(textareaId) {
+    if (typeof annyang === 'undefined') {
+        alert('El reconocimiento de voz no está disponible.');
+        return;
+    }
+    annyang.abort();
+    annyang.removeCommands();
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+    annyang.setLanguage('es-ES');
+    annyang.addCommands({
+        '*texto': function(texto) {
+            textarea.value = textarea.value ? textarea.value + ' ' + texto : texto;
+        }
+    });
+    annyang.start({ autoRestart: false, continuous: false });
+    annyang.addCallback('end', function() {
+        annyang.abort();
+    });
+}
 // SISTEMA DE ATENCIÓN MÉDICA - CÓDIGO ORGANIZADO
 // ==============================
 

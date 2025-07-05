@@ -1,75 +1,68 @@
 {% extends 'home.html' %}
 <title>{% block title %}Auditoría{% endblock %}</title>
 {% block content %}
-<section class="dark:bg-principal mt-2">
-    <div class="text-center" data-aos="fade-up" data-aos-delay="200">
-        <div class="sm:pt-8 lg:pt-4">
-            <h1 class="rounded-2xl bg-indigo-500 px-2 py-1 text-white uppercase text-4xl">
-                Auditoría de Usuarios
-            </h1>
+<section class="min-h-screen flex items-start justify-center dark:bg-principal bg-white pt-8 pb-4">
+    <div class="w-full max-w-5xl mx-auto bg-white dark:bg-secundario rounded-2xl shadow-lg p-4 md:p-8">
+        <div class="flex flex-col items-center w-full mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-blue-200 tracking-tight uppercase">Auditoría de Usuarios</h1>
         </div>
-        <div class="lg:p-2 rounded-3xl" data-aos="fade-up" data-aos-delay="200">
-            <!-- Barra de búsqueda -->
-            <div class="p-4 flex justify-center">
-                <form method="GET">
-                    <input type="text" name="q" id="table-search"
-                        class="text-center pl-10 shadow-sm bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 pr-12 dark:bg-principal dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
-                        placeholder="Buscar por usuario, tabla, acción..." value="{{ request.GET.q }}">
-                </form>
-            </div>
-            <!-- Tabla de auditoría -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-center text-lg">
-                    <thead class="uppercase font-Tiny5 bg-gray-50 dark:bg-secundario dark:text-blue-300">
+        <div class="flex flex-col gap-6">
+            <form method="GET" class="flex justify-center mb-4 w-full">
+                <input type="text" name="q" id="table-search" class="w-full max-w-md text-center pl-8 pr-8 py-2 shadow bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-500 dark:bg-principal dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-200 dark:focus:ring-blue-500 dark:focus:border-blue-500 transition-all duration-200" placeholder="Buscar por usuario, tabla, acción..." value="{{ request.GET.q }}">
+            </form>
+            <div class="overflow-x-auto rounded-xl border border-gray-100 dark:border-secundario bg-white dark:bg-principal shadow-sm">
+                <table class="w-full text-center text-base md:text-lg">
+                    <thead class="uppercase font-semibold bg-gray-50 dark:bg-secundario dark:text-blue-300">
                         <tr>
-                            <th scope="col" class="px-6 py-3">Usuario</th>
-                            <th scope="col" class="px-6 py-3">Tabla</th>
-                            <th scope="col" class="px-6 py-3">Acción</th>
-                            <th scope="col" class="px-6 py-3">Fecha</th>
-                            <th scope="col" class="px-6 py-3">Hora</th>
-                            <th scope="col" class="px-6 py-3">Estación</th>
+                            <th class="px-4 py-3">Usuario</th>
+                            <th class="px-4 py-3">Tabla</th>
+                            <th class="px-4 py-3">Acción</th>
+                            <th class="px-4 py-3">Fecha</th>
+                            <th class="px-4 py-3">Hora</th>
+                            <th class="px-4 py-3">Estación</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for audit in audits %}
-                        <tr class="dark:text-gray-400 bg-white border-b dark:bg-[#0b1121] dark:border-secundario hover:bg-gray-50 dark:hover:bg-[#121c33]">
-                            <td class="px-6 py-4">{{ audit.usuario.username }}</td>
-                            <td class="px-6 py-4">{{ audit.tabla }}</td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded-full text-sm {% if audit.accion == 'ADICION' %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200{% elif audit.accion == 'MODIFICACION' %}bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200{% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200{% endif %}">
+                        <tr class="dark:text-gray-400 bg-white border-b dark:bg-[#1a2a6c] dark:border-secundario hover:bg-blue-50 dark:hover:bg-[#121c33] transition-colors">
+                            <td class="px-4 py-3 font-semibold">{{ audit.usuario.username }}</td>
+                            <td class="px-4 py-3">{{ audit.tabla }}</td>
+                            <td class="px-4 py-3">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold tracking-wide
+                                    {% if audit.accion == 'ADICION' %}bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200
+                                    {% elif audit.accion == 'MODIFICACION' %}bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200
+                                    {% else %}bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200{% endif %}">
                                     {{ audit.accion }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4">{{ audit.fecha }}</td>
-                            <td class="px-6 py-4">{{ audit.hora }}</td>
-                            <td class="px-6 py-4">{{ audit.estacion }}</td>
+                            <td class="px-4 py-3">{{ audit.fecha }}</td>
+                            <td class="px-4 py-3">{{ audit.hora }}</td>
+                            <td class="px-4 py-3">{{ audit.estacion }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-400 dark:text-gray-500">Sin registros</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <!-- Paginación -->
-            <div class="flex justify-center mt-4">
-                <nav aria-label="Page navigation example">
+            <div class="flex justify-center mt-8">
+                <nav aria-label="Page navigation">
                     <ul class="inline-flex -space-x-px">
                         {% if page_obj.has_previous %}
                         <li>
-                            <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                                class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white">Anterior</a>
+                            <a href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-xl hover:bg-blue-100 hover:text-blue-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white transition">Anterior</a>
                         </li>
                         {% endif %}
                         {% for num in page_obj.paginator.page_range %}
                         <li>
-                            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                                class="flex items-center justify-center px-3 h-8 leading-tight {% if num == page_obj.number %}text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:bg-secundario dark:border-principal dark:text-blue-300{% else %}text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white{% endif %}">
-                                {{ num }}
-                            </a>
+                            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="flex items-center justify-center px-4 h-10 leading-tight font-semibold border transition-all duration-150 {% if num == page_obj.number %}text-white bg-blue-600 border-blue-600 shadow-lg dark:bg-secundario dark:border-principal dark:text-blue-200{% else %}text-gray-500 bg-white border-gray-300 hover:bg-blue-50 hover:text-blue-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white{% endif %}">{{ num }}</a>
                         </li>
                         {% endfor %}
                         {% if page_obj.has_next %}
                         <li>
-                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-                                class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white">Siguiente</a>
+                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-xl hover:bg-blue-100 hover:text-blue-700 dark:bg-[#0b1121] dark:border-secundario dark:text-gray-400 dark:hover:bg-[#121c33] dark:hover:text-white transition">Siguiente</a>
                         </li>
                         {% endif %}
                     </ul>

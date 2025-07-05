@@ -18,8 +18,9 @@ class PagoListView(PermissionMixin, ListViewMixin, ListView):
     permission_required = 'view_pago'
 
     def get_queryset(self):
+        self.query = Q()
         q1 = self.request.GET.get('q')
-        if q1 is not None:
+        if q1:
             self.query.add(Q(atencion__paciente__nombres__icontains=q1), Q.OR)
             self.query.add(Q(atencion__paciente__apellidos__icontains=q1), Q.OR)
             self.query.add(Q(metodo_pago__icontains=q1), Q.OR)
@@ -33,18 +34,20 @@ class PagoListView(PermissionMixin, ListViewMixin, ListView):
         return context
 
 
+
+from applications.doctor.forms.pago import PagoForm
+
 class PagoCreateView(PermissionMixin, CreateViewMixin, CreateView):
     model = Pago
     template_name = 'doctor/pago/form.html'
-    fields = ['atencion', 'metodo_pago', 'monto_total', 'estado', 'nombre_pagador', 
-              'referencia_externa', 'evidencia_pago', 'observaciones', 'activo']
+    form_class = PagoForm
     success_url = reverse_lazy('doctor:pago_list')
     permission_required = 'add_pago'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['detalle_formset'] = DetallePagoFormSet(self.request.POST)
+        if self.request.method == 'POST':
+            context['detalle_formset'] = DetallePagoFormSet(self.request.POST, self.request.FILES)
         else:
             context['detalle_formset'] = DetallePagoFormSet()
         context['grabar'] = 'Grabar Pago'
@@ -59,22 +62,21 @@ class PagoCreateView(PermissionMixin, CreateViewMixin, CreateView):
             detalle_formset.instance = self.object
             detalle_formset.save()
             return super().form_valid(form)
-        else:
-            return self.form_invalid(form)
+        return self.form_invalid(form)
+
 
 
 class PagoUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
     model = Pago
     template_name = 'doctor/pago/form.html'
-    fields = ['atencion', 'metodo_pago', 'monto_total', 'estado', 'nombre_pagador', 
-              'referencia_externa', 'evidencia_pago', 'observaciones', 'activo']
+    form_class = PagoForm
     success_url = reverse_lazy('doctor:pago_list')
     permission_required = 'change_pago'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['detalle_formset'] = DetallePagoFormSet(self.request.POST, instance=self.object)
+        if self.request.method == 'POST':
+            context['detalle_formset'] = DetallePagoFormSet(self.request.POST, self.request.FILES, instance=self.object)
         else:
             context['detalle_formset'] = DetallePagoFormSet(instance=self.object)
         context['grabar'] = 'Actualizar Pago'
@@ -89,8 +91,7 @@ class PagoUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
             detalle_formset.instance = self.object
             detalle_formset.save()
             return super().form_valid(form)
-        else:
-            return self.form_invalid(form)
+        return self.form_invalid(form)
 
 
 class PagoDeleteView(PermissionMixin, DeleteViewMixin, DeleteView):
