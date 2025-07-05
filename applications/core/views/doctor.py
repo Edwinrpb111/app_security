@@ -27,14 +27,19 @@ class DoctorListView(PermissionMixin, ListViewMixin, ListView):
         return context
 
 
+from applications.core.forms.formdoctor import DoctorForm
+
 class DoctorCreateView(PermissionMixin, CreateViewMixin, CreateView):
     model = Doctor
+    form_class = DoctorForm
     template_name = 'core/doctor/form.html'
-    fields = ['nombres', 'apellidos', 'ruc', 'fecha_nacimiento', 'direccion', 
-              'codigo_unico_doctor', 'especialidad', 'telefonos', 'email', 
-              'horario_atencion', 'duracion_atencion', 'foto', 'activo']
     success_url = reverse_lazy('core:doctor_list')
     permission_required = 'add_doctor'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.especialidad.set(form.cleaned_data['especialidad'])
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -42,15 +47,17 @@ class DoctorCreateView(PermissionMixin, CreateViewMixin, CreateView):
         context['back_url'] = self.success_url
         return context
 
-
 class DoctorUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
     model = Doctor
+    form_class = DoctorForm
     template_name = 'core/doctor/form.html'
-    fields = ['nombres', 'apellidos', 'ruc', 'fecha_nacimiento', 'direccion', 
-              'codigo_unico_doctor', 'especialidad', 'telefonos', 'email', 
-              'horario_atencion', 'duracion_atencion', 'foto', 'activo']
     success_url = reverse_lazy('core:doctor_list')
     permission_required = 'change_doctor'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.especialidad.set(form.cleaned_data['especialidad'])
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

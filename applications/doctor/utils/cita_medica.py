@@ -10,6 +10,10 @@ class EstadoCitaChoices(models.TextChoices):
     DISPONIBLE = 'disponible', 'Disponible'
     OCUPADO = 'ocupado', 'Ocupado'
     ATENDIDO = 'atendido', 'Atendido'
+    PROGRAMADA = 'programada', 'Programada'
+    CONFIRMADA = 'confirmada', 'Confirmada'
+    CANCELADA = 'cancelada', 'Cancelada'
+    COMPLETADA = 'completada', 'Completada'
 
 
 

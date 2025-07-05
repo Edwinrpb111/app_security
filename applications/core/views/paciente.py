@@ -13,6 +13,7 @@ def paciente_find(request):
     try:
         # Obtener el parámetro de búsqueda
         query = request.GET.get('q', '').strip()
+        print(f"🔍 Búsqueda recibida: '{query}'")
 
         # Validar que se proporcione al menos 3 caracteres
         if len(query) < 3:
@@ -22,8 +23,7 @@ def paciente_find(request):
                 'pacientes': []
             })
 
-        # Construir la consulta de búsqueda
-        # Buscar en nombres, apellidos, cédula, DNI y teléfono
+        # Construir la consulta de búsqueda de forma más simple
         pacientes_query = Paciente.objects.filter(
             Q(activo=True) & (
                     Q(nombres__icontains=query) |
@@ -32,109 +32,59 @@ def paciente_find(request):
                     Q(dni__icontains=query) |
                     Q(telefono__icontains=query)
             )
-        ).select_related('tipo_sangre').prefetch_related(
-            'atenciones__diagnostico',
-            'atenciones__detalles__medicamento'
-        ).order_by('apellidos', 'nombres')
+        ).select_related('tipo_sangre').order_by('apellidos', 'nombres')
 
         # Limitar resultados para mejorar rendimiento
         pacientes_query = pacientes_query[:20]
+        print(f"📊 Encontrados: {pacientes_query.count()} pacientes")
 
-        # Convertir a lista de diccionarios
+        # Convertir a lista de diccionarios de forma más simple
         pacientes_data = []
         for paciente in pacientes_query:
-            # Calcular edad
-            edad = paciente.edad
+            try:
+                # Calcular edad de forma segura
+                edad = paciente.edad if paciente.edad else 0
 
-            # Obtener atenciones anteriores (últimas 10)
-            atenciones = []
-            for atencion in paciente.atenciones.all()[:10]:
-                # Obtener prescripciones/detalles de esta atención
-                detalles = []
-                for detalle in atencion.detalles.all():
-                    detalle_dict = {
-                        'medicamento': detalle.medicamento.nombre if detalle.medicamento else None,
-                        'cantidad': detalle.cantidad,
-                        'prescripcion': detalle.prescripcion,
-                        'duracion_tratamiento': detalle.duracion_tratamiento,
-                        'frecuencia_diaria': detalle.frecuencia_diaria,
-                    }
-                    detalles.append(detalle_dict)
+                paciente_dict = {
+                    'id': paciente.id,
+                    'nombres': paciente.nombres,
+                    'apellidos': paciente.apellidos,
+                    'cedula_ecuatoriana': paciente.cedula_ecuatoriana,
+                    'dni': paciente.dni,
+                    'fecha_nacimiento': paciente.fecha_nacimiento.isoformat() if paciente.fecha_nacimiento else None,
+                    'edad': edad,
+                    'telefono': paciente.telefono,
+                    'email': paciente.email,
+                    'sexo': paciente.sexo,
+                    'estado_civil': paciente.estado_civil,
+                    'direccion': paciente.direccion,
+                    'latitud': float(paciente.latitud) if paciente.latitud else None,
+                    'longitud': float(paciente.longitud) if paciente.longitud else None,
+                    'tipo_sangre': paciente.tipo_sangre.tipo if paciente.tipo_sangre else None,
+                    'foto_url': paciente.get_image,
 
-                # Obtener diagnósticos
-                diagnosticos = [d.descripcion for d in atencion.diagnostico.all()]
+                    # Historia clínica
+                    'antecedentes_personales': paciente.antecedentes_personales,
+                    'antecedentes_quirurgicos': paciente.antecedentes_quirurgicos,
+                    'antecedentes_familiares': paciente.antecedentes_familiares,
+                    'alergias': paciente.alergias,
+                    'medicamentos_actuales': paciente.medicamentos_actuales,
+                    'habitos_toxicos': paciente.habitos_toxicos,
+                    'vacunas': paciente.vacunas,
+                    'antecedentes_gineco_obstetricos': paciente.antecedentes_gineco_obstetricos,
 
-                # Determinar tipo de consulta
-                tipo_consulta = "Chequeo"
-                if atencion.es_control:
-                    tipo_consulta = "Control"
-                elif "urgencia" in atencion.motivo_consulta.lower() or "dolor" in atencion.motivo_consulta.lower():
-                    tipo_consulta = "Urgencia"
-
-                atencion_dict = {
-                    'id': atencion.id,
-                    'fecha_atencion': atencion.fecha_atencion.isoformat(),
-                    'tipo_consulta': tipo_consulta,
-
-                    # Signos vitales
-                    'presion_arterial': atencion.presion_arterial,
-                    'pulso': atencion.pulso,
-                    'temperatura': float(atencion.temperatura) if atencion.temperatura else None,
-                    'frecuencia_respiratoria': atencion.frecuencia_respiratoria,
-                    'saturacion_oxigeno': float(atencion.saturacion_oxigeno) if atencion.saturacion_oxigeno else None,
-                    'peso': float(atencion.peso) if atencion.peso else None,
-                    'altura': float(atencion.altura) if atencion.altura else None,
-                    'imc': atencion.calcular_imc,
-
-                    # Contenido de la atención
-                    'motivo_consulta': atencion.motivo_consulta,
-                    'sintomas': atencion.sintomas,
-                    'tratamiento': atencion.tratamiento,
-                    'diagnosticos': diagnosticos,
-                    'examen_fisico': atencion.examen_fisico,
-                    'examenes_enviados': atencion.examenes_enviados,
-                    'comentario_adicional': atencion.comentario_adicional,
-                    'es_control': atencion.es_control,
-
-                    # Prescripciones
-                    'prescripciones': detalles
+                    # Atenciones simplificadas - solo contar por ahora
+                    'atenciones': [],
+                    'total_atenciones': 0
                 }
-                atenciones.append(atencion_dict)
+                pacientes_data.append(paciente_dict)
+                print(f"✅ Paciente procesado: {paciente.nombres} {paciente.apellidos}")
+                
+            except Exception as e:
+                print(f"❌ Error procesando paciente {paciente.id}: {e}")
+                continue
 
-            paciente_dict = {
-                'id': paciente.id,
-                'nombres': paciente.nombres,
-                'apellidos': paciente.apellidos,
-                'cedula_ecuatoriana': paciente.cedula_ecuatoriana,
-                'dni': paciente.dni,
-                'fecha_nacimiento': paciente.fecha_nacimiento.isoformat() if paciente.fecha_nacimiento else None,
-                'edad': edad,
-                'telefono': paciente.telefono,
-                'email': paciente.email,
-                'sexo': paciente.sexo,
-                'estado_civil': paciente.estado_civil,
-                'direccion': paciente.direccion,
-                'latitud': float(paciente.latitud) if paciente.latitud else None,
-                'longitud': float(paciente.longitud) if paciente.longitud else None,
-                'tipo_sangre': paciente.tipo_sangre.tipo if paciente.tipo_sangre else None,
-                'foto_url': paciente.get_image,
-
-                # Historia clínica
-                'antecedentes_personales': paciente.antecedentes_personales,
-                'antecedentes_quirurgicos': paciente.antecedentes_quirurgicos,
-                'antecedentes_familiares': paciente.antecedentes_familiares,
-                'alergias': paciente.alergias,
-                'medicamentos_actuales': paciente.medicamentos_actuales,
-                'habitos_toxicos': paciente.habitos_toxicos,
-                'vacunas': paciente.vacunas,
-                'antecedentes_gineco_obstetricos': paciente.antecedentes_gineco_obstetricos,
-
-                # Atenciones anteriores
-                'atenciones': atenciones,
-                'total_atenciones': paciente.atenciones.count()
-            }
-            pacientes_data.append(paciente_dict)
-        print(pacientes_data)
+        print(f"📦 Enviando {len(pacientes_data)} pacientes")
         return JsonResponse({
             'success': True,
             'pacientes': pacientes_data,
@@ -143,6 +93,9 @@ def paciente_find(request):
         })
 
     except Exception as e:
+        print(f"❌ Error en paciente_find: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False,
             'message': f'Error en la búsqueda: {str(e)}',
@@ -211,7 +164,7 @@ class PacienteUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
 
 class PacienteDeleteView(PermissionMixin, DeleteViewMixin, DeleteView):
     model = Paciente
-    template_name = 'core/delete.html'
+    template_name = 'core/pacientes/delete.html'
     success_url = reverse_lazy('core:paciente_list')
     permission_required = 'delete_paciente'
 

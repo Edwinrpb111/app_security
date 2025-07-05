@@ -1,5 +1,6 @@
 from django.urls import path
 from applications.core.views.paciente import paciente_find, PacienteListView, PacienteCreateView, PacienteUpdateView, PacienteDeleteView
+from applications.core.views.paciente_api import paciente_create_api
 from applications.core.views.tipo_sangre import TipoSangreListView, TipoSangreCreateView, TipoSangreUpdateView, TipoSangreDeleteView
 from applications.core.views.especialidad import EspecialidadListView, EspecialidadCreateView, EspecialidadUpdateView, EspecialidadDeleteView
 from applications.core.views.doctor import DoctorListView, DoctorCreateView, DoctorUpdateView, DoctorDeleteView
@@ -18,6 +19,7 @@ urlpatterns = [
     # Rutas  para vistas relacionadas con Pacientes
     #Paciente Main View Create, Update, Delete, List
     path('paciente_find/', paciente_find, name="paciente_find"),
+    path('paciente/api/create/', paciente_create_api, name='paciente_create_api'),
     path('paciente/', PacienteListView.as_view(), name='paciente_list'),
     path('paciente/create/', PacienteCreateView.as_view(), name='paciente_create'),
     path('paciente/update/<int:pk>/', PacienteUpdateView.as_view(), name='paciente_update'),

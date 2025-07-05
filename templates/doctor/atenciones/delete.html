@@ -9,11 +9,8 @@
                 {{ grabar }}
             </h1>
         </div>
-
         <div class="mx-4 lg:mx-20 py-8" data-aos="fade">
             <div class="bg-white dark:bg-secundario rounded-3xl p-8 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
-                
-                <!-- Icono de advertencia -->
                 <div class="text-center mb-6">
                     <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30">
                         <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,8 +21,6 @@
                         Confirmar Eliminación
                     </h3>
                 </div>
-
-                <!-- Descripción -->
                 <div class="text-center mb-8">
                     <p class="text-lg text-gray-600 dark:text-gray-400">
                         {{ description }}
@@ -34,8 +29,6 @@
                         Esta acción no se puede deshacer.
                     </p>
                 </div>
-
-                <!-- Formulario -->
                 <form method="post" class="text-center">
                     {% csrf_token %}
                     <div class="flex items-center justify-center space-x-4">
@@ -43,11 +36,10 @@
                             class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-lg px-8 py-3">
                             Sí, Eliminar
                         </button>
-                        <a href="/doctor/cita-medica/list/"
+                        <a href="{{ back_url }}"
                             class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-lg font-medium px-8 py-3 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600">
                             Cancelar
                         </a>
-                    
                     </div>
                 </form>
             </div>

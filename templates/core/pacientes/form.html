@@ -36,6 +36,13 @@
             <!-- Form Content -->
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+
+                {% if form.errors %}
+                      <div class="mb-4 text-red-600 text-lg font-semibold">
+                        {{ form.errors }}
+                      </div>
+                    {% endif %}
+
                 <div class="p-8 space-y-8">
                     {{ form.as_p }}
                 </div>

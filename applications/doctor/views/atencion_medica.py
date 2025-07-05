@@ -3,9 +3,17 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.template.loader import get_template
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
+from django.shortcuts import get_object_or_404
 
 from applications.core.models import Paciente, Medicamento, Diagnostico
 from applications.doctor.forms.atencion import AtencionForm
@@ -298,7 +306,7 @@ class AtencionUpdateView(PermissionMixin, UpdateViewMixin, UpdateView):
 
 class AtencionDeleteView(PermissionMixin, DeleteViewMixin, DeleteView):
     model = Atencion
-    template_name = 'core/delete.html'
+    template_name = 'doctor/atenciones/delete.html'
     success_url = reverse_lazy('doctor:atencion_list')
     permission_required = 'delete_atencion'
 
@@ -314,6 +322,133 @@ class AtencionDeleteView(PermissionMixin, DeleteViewMixin, DeleteView):
         response = super().form_valid(form)
         messages.success(self.request, f"Éxito al eliminar lógicamente la atención de {paciente_nombre}.")
         return response
+
+
+class AtencionCreateFromCitaView(PermissionMixin, CreateViewMixin, CreateView):
+    model = Atencion
+    template_name = 'doctor/atenciones/form.html'
+    form_class = AtencionForm
+    success_url = reverse_lazy('doctor:atencion_list')
+    permission_required = 'add_atencion'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        cita_id = self.kwargs.get('cita_id')
+        if cita_id:
+            from applications.doctor.models import CitaMedica
+            cita = get_object_or_404(CitaMedica, id=cita_id)
+            initial['paciente'] = cita.paciente
+            initial['doctor'] = cita.doctor
+            initial['cita'] = cita
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['grabar'] = 'Grabar Atención desde Cita'
+        context['back_url'] = reverse_lazy('doctor:cita_medica_list')
+        context['diagnosticos'] = Diagnostico.objects.filter(activo=True)
+        context['medicamentos'] = (Medicamento.objects.filter(activo=True)
+            .select_related('tipo', 'marca_medicamento')
+            .only('id', 'nombre', 'concentracion', 'via_administracion',
+                  'precio', 'cantidad', 'tipo__nombre', 'marca_medicamento__nombre'
+                  ).order_by('nombre'))
+        
+        cita_id = self.kwargs.get('cita_id')
+        if cita_id:
+            from applications.doctor.models import CitaMedica
+            cita = get_object_or_404(CitaMedica, id=cita_id)
+            context['cita'] = cita
+            
+        return context
+
+
+def imprimir_receta_pdf(request, atencion_id):
+    atencion = get_object_or_404(Atencion, id=atencion_id)
+    if not request.user.has_perm('view_atencion'):
+        return HttpResponse('No tiene permisos para ver esta receta', status=403)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="receta_{atencion.id}.pdf"'
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+    # Encabezado empresarial mejorado
+    story.append(Paragraph("<para align='center'><font size=22 color='#1565c0'><b>SaludTotal</b></font></para>", styles['Title']))
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("<para align='center'><font size=14 color='#263238'><b>RECETA MÉDICA</b></font></para>", styles['Title']))
+    story.append(Spacer(1, 18))
+    if atencion.doctor:
+        doctor_info = f"""
+        <font size=11 color='#1565c0'><b>Dr./Dra. {atencion.doctor.nombres} {atencion.doctor.apellidos}</b></font><br/>
+        <font size=9 color='#607d8b'>RUC: {atencion.doctor.ruc}</font><br/>
+        <font size=9 color='#607d8b'>Dirección: {atencion.doctor.direccion}</font><br/>
+        """
+        story.append(Paragraph(doctor_info, styles['Normal']))
+        story.append(Spacer(1, 8))
+    paciente_info = f"""
+    <font size=10 color='#263238'><b>Paciente:</b> {atencion.paciente.nombres} {atencion.paciente.apellidos}</font><br/>
+    <font size=9 color='#607d8b'><b>Cédula:</b> {atencion.paciente.cedula_ecuatoriana}</font><br/>
+    <font size=9 color='#607d8b'><b>Fecha de atención:</b> {atencion.fecha_atencion.strftime('%d/%m/%Y %H:%M')}</font><br/>
+    """
+    story.append(Paragraph(paciente_info, styles['Normal']))
+    story.append(Spacer(1, 10))
+    diagnosticos_text = atencion.get_diagnosticos or "No especificado"
+    diagnosticos_info = f"<font size=9 color='#37474f'><b>Diagnóstico:</b></font> <font size=9 color='#263238'>{diagnosticos_text}</font>"
+    story.append(Paragraph(diagnosticos_info, styles['Normal']))
+    story.append(Spacer(1, 8))
+    tratamiento_info = f"<font size=9 color='#37474f'><b>Tratamiento:</b></font><br/><font size=9 color='#263238'>{atencion.tratamiento}</font>"
+    story.append(Paragraph(tratamiento_info, styles['Normal']))
+    story.append(Spacer(1, 10))
+    detalles = atencion.detalles.all()
+    if detalles.exists():
+        story.append(Paragraph("<font size=11 color='#1565c0'><b>Medicamentos recetados</b></font>", styles['Normal']))
+        story.append(Spacer(1, 6))
+        medicamentos_data = [
+            ["Medicamento", "Prescripción", "Frecuencia", "Duración"]
+        ]
+        for detalle in detalles:
+            medicamentos_data.append([
+                str(detalle.medicamento.nombre),
+                str(detalle.prescripcion),
+                str(detalle.frecuencia_diaria or "-"),
+                str(detalle.duracion_tratamiento or "-")
+            ])
+        medicamentos_table = Table(medicamentos_data, colWidths=[120, 180, 80, 80], hAlign='CENTER')
+        medicamentos_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), '#e3f2fd'),
+            ('TEXTCOLOR', (0, 0), (-1, 0), '#1565c0'),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 11),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            ('BACKGROUND', (0, 1), (-1, -1), '#fafbfc'),
+            ('TEXTCOLOR', (0, 1), (-1, -1), '#263238'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 0.7, '#b0bec5'),
+            ('BOX', (0, 0), (-1, -1), 1.2, '#1565c0'),
+            ('TOPPADDING', (0, 1), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ]))
+        story.append(medicamentos_table)
+        story.append(Spacer(1, 12))
+    if atencion.comentario_adicional:
+        observaciones_info = f"<font size=9 color='#37474f'><b>Observaciones:</b></font><br/><font size=9 color='#263238'>{atencion.comentario_adicional}</font>"
+        story.append(Paragraph(observaciones_info, styles['Normal']))
+        story.append(Spacer(1, 10))
+    if atencion.doctor:
+        firma_info = f"""
+        <br/><br/>
+        <font size=9 color='#263238'>______________________________</font><br/>
+        <font size=9 color='#263238'>Dr./Dra. {atencion.doctor.nombres} {atencion.doctor.apellidos}</font><br/>
+        <font size=9 color='#607d8b'>RUC: {atencion.doctor.ruc}</font>
+        """
+        story.append(Paragraph(firma_info, styles['Normal']))
+    doc.build(story)
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response
 
 
 def obtener_contexto_paciente(id_paciente):

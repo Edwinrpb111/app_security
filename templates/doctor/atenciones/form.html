@@ -1,10 +1,8 @@
 {% extends 'home.html' %}
 <title>{% block title %}{{title}}{% endblock %}</title>
-{% load static %}
-{% block css %}
-    <script src="https://cdn.tailwindcss.com"></script>
-{%  endblock css %}
+
 {% block content %}
+
 <section class="bg-gray-50 min-h-screen">
    <!-- Header -->
    <!-- Navigation Tabs -->
@@ -38,6 +36,7 @@
             </div>
         </div>
     </nav>
+    
 
     <!-- Main Content -->
     <main class="container mx-auto px-6 py-8">
@@ -121,17 +120,19 @@
                     </div>
                 </div>
             </div>
-
-            <button
-                onclick="mostrarFormularioNuevoPaciente()"
-                class="bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl transition-colors duration-200 flex items-center space-x-2 font-semibold"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
+            
+            <button onclick="mostrarFormularioNuevoPaciente()" type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white border border-green-400 text-green-700 font-semibold shadow-sm hover:bg-green-50 hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                 <span>Agregar Paciente</span>
             </button>
+            <button onclick="mostrarModalVerPacientes()" type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white border border-blue-400 text-blue-700 font-semibold shadow-sm hover:bg-blue-50 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m5-7a4 4 0 11-8 0 4 4 0 018 0zm6 4v-2a4 4 0 00-3-3.87"/></svg>
+                <span>Ver Pacientes</span>
+            </button>
+
+            
         </div>
+        
     </div>
 
     <!-- Datos del Paciente Seleccionado -->
@@ -548,6 +549,7 @@
     </main>
 
 </section>
+
 
 <!-- CSS para estilos de error y variables médicas -->
  <style>
@@ -1505,6 +1507,7 @@ let searchInput, dropdown, pacientesList, loadingIndicator, searchIcon, clearBut
  */
 function handleSearchInput(e) {
     const query = e.target.value.trim();
+    console.log('🔤 Input changed:', query, 'Length:', query.length);
 
     // Mostrar/ocultar botón de limpiar
     if (query.length > 0) {
@@ -1524,11 +1527,15 @@ function handleSearchInput(e) {
 
     // Configurar nuevo timeout
     searchTimeout = setTimeout(() => {
+        console.log('⏱️ Timeout ejecutado para query:', query);
         if (query.length >= 3) {
+            console.log('✅ Query válido, iniciando búsqueda...');
             buscarPacientes(query);
         } else if (query.length > 0) {
+            console.log('⚠️ Query muy corto, mostrando mensaje...');
             mostrarMensajeMinCaracteres();
         } else {
+            console.log('🔒 Query vacío, ocultando dropdown...');
             ocultarDropdown();
         }
     }, 300); // Debounce de 300ms
@@ -1579,28 +1586,40 @@ async function buscarPacientes(query) {
     mostrarIndicadorCarga();
 
     try {
-        // Construir URL con parámetros
-        const url = new URL(window.location.origin + '/core/paciente_find/');
-        url.searchParams.append('q', query);
+        console.log('🔍 Buscando pacientes con query:', query);
+        
+        const url = `{% url 'core:paciente_find' %}?q=${encodeURIComponent(query)}`;
+        console.log('📡 URL de búsqueda:', url);
 
         const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
         });
 
+        console.log('📊 Response status:', response.status);
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('❌ Error response:', errorText);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
+        console.log('📦 Datos recibidos:', data);
+
+        if (data.success === false) {
+            mostrarError(data.message || 'Error en la búsqueda');
+            return;
+        }
+
         mostrarResultados(data.pacientes || []);
 
     } catch (error) {
-        console.error('Error al buscar pacientes:', error);
-        mostrarError('Error al buscar pacientes. Por favor, intente nuevamente.');
+        console.error('❌ Error al buscar pacientes:', error);
+        mostrarError(`Error al buscar pacientes: ${error.message}`);
     } finally {
         isSearching = false;
         ocultarIndicadorCarga();
@@ -1612,16 +1631,26 @@ async function buscarPacientes(query) {
  * @param {Array} pacientes - Lista de pacientes encontrados
  */
 function mostrarResultados(pacientes) {
+    console.log('📋 Mostrando resultados:', pacientes?.length || 0, 'pacientes');
+    
+    if (!pacientesList) {
+        console.error('❌ No se encontró el elemento pacientes-list');
+        return;
+    }
+    
     pacientesList.innerHTML = '';
 
-    if (pacientes.length === 0) {
+    if (!pacientes || pacientes.length === 0) {
+        console.log('📭 No hay resultados para mostrar');
         noResults.classList.remove('hidden');
         minCharsMessage.classList.add('hidden');
     } else {
+        console.log('✅ Mostrando', pacientes.length, 'pacientes');
         noResults.classList.add('hidden');
         minCharsMessage.classList.add('hidden');
 
-        pacientes.forEach(paciente => {
+        pacientes.forEach((paciente, index) => {
+            console.log(`👤 Procesando paciente ${index + 1}:`, paciente.nombres, paciente.apellidos);
             const option = crearOpcionPaciente(paciente);
             pacientesList.appendChild(option);
         });
@@ -2314,6 +2343,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     // 8.2 INICIALIZAR SELECTOR DE PACIENTES
     // ============================================
+    console.log('🔍 Inicializando selector de pacientes...');
+    
     // Obtener elementos DOM
     searchInput = document.getElementById('paciente-search-input');
     dropdown = document.getElementById('pacientes-dropdown');
@@ -2326,11 +2357,43 @@ document.addEventListener('DOMContentLoaded', function() {
     datosContainer = document.getElementById('datos-paciente-container');
     noMensaje = document.getElementById('no-paciente-mensaje');
 
+    // Verificar que todos los elementos existan
+    const requiredElements = {
+        searchInput: 'paciente-search-input',
+        dropdown: 'pacientes-dropdown',
+        pacientesList: 'pacientes-list',
+        loadingIndicator: 'loading-indicator',
+        searchIcon: 'search-icon',
+        clearButton: 'clear-button',
+        noResults: 'no-results',
+        minCharsMessage: 'min-chars-message',
+        datosContainer: 'datos-paciente-container'
+    };
+
+    let missingElements = [];
+    for (const [varName, elementId] of Object.entries(requiredElements)) {
+        if (!document.getElementById(elementId)) {
+            missingElements.push(elementId);
+        }
+    }
+
+    if (missingElements.length > 0) {
+        console.error('❌ Elementos faltantes en el DOM:', missingElements);
+        alert('Error: Elementos necesarios no encontrados en la página. Por favor, recargue la página.');
+        return;
+    }
+
+    console.log('✅ Todos los elementos DOM encontrados');
+
     // Configurar Event Listeners para selector de pacientes
     if (searchInput) {
+        console.log('🎯 Configurando event listeners...');
         searchInput.addEventListener('input', handleSearchInput);
         searchInput.addEventListener('focus', handleInputFocus);
         searchInput.addEventListener('blur', handleInputBlur);
+        console.log('✅ Event listeners configurados');
+    } else {
+        console.error('❌ No se pudo encontrar el input de búsqueda');
     }
 
     document.addEventListener('click', handleDocumentClick);
@@ -2350,31 +2413,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     const formNuevoPaciente = document.getElementById('form-nuevo-paciente');
     if (formNuevoPaciente) {
-        formNuevoPaciente.addEventListener('submit', function(e) {
+        formNuevoPaciente.addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            // Obtener datos del formulario
             const formData = new FormData(this);
             const pacienteData = {};
-
-            // Convertir FormData a objeto
             for (let [key, value] of formData.entries()) {
                 pacienteData[key] = value;
             }
-
-            // Validaciones básicas
             if (!validarFormulario(pacienteData)) {
                 return;
             }
-
-            // Aquí iría la lógica para enviar al backend
-            console.log('Datos del nuevo paciente:', pacienteData);
-
-            // Simulación de guardado exitoso
-            alert('✅ Paciente agregado exitosamente!\n\nNombre: ' + pacienteData.nombres + ' ' + pacienteData.apellidos + '\nCédula: ' + pacienteData.cedula_ecuatoriana);
-
-            // Cerrar modal y limpiar formulario
-            cerrarModalPaciente();
+            try {
+                const response = await fetch('/core/paciente/api/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(pacienteData)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Paciente guardado correctamente');
+                    cerrarModalPaciente();
+                } else {
+                    alert('❌ Error al guardar: ' + (result.message || 'Error desconocido'));
+                }
+            } catch (err) {
+                alert('❌ Error de red o servidor');
+            }
         });
     }
 
@@ -2495,6 +2562,129 @@ window.toggleAccordion = toggleAccordion;
 window.limpiarSeleccion = limpiarSeleccion;
 
 console.log('📜 Sistema de Atención Médica - Código organizado cargado y esperando inicialización...');
-</script>
 
-{% endblock %}
+// ==============================
+// 10. MODAL PARA VER PACIENTES
+
+function mostrarModalVerPacientes() {
+    let overlay = document.getElementById('modal-ver-pacientes-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'modal-ver-pacientes-overlay';
+        overlay.className = 'fixed inset-0 z-40 bg-black bg-opacity-40 backdrop-blur-sm transition-all duration-200';
+        document.body.appendChild(overlay);
+    } else {
+        overlay.classList.remove('hidden');
+    }
+    const modal = document.getElementById('modal-ver-pacientes');
+    modal.classList.remove('hidden');
+    modal.classList.add('z-50');
+    document.body.style.overflow = 'hidden';
+    overlay.onclick = function(e) {
+        cerrarModalVerPacientes();
+    };
+    cargarPacientesEnModal();
+}
+
+function cerrarModalVerPacientes() {
+    const modal = document.getElementById('modal-ver-pacientes');
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    const overlay = document.getElementById('modal-ver-pacientes-overlay');
+    if (overlay) overlay.classList.add('hidden');
+}
+
+let cedulaSeleccionada = '';
+
+function cargarPacientesEnModal() {
+    const lista = document.getElementById('ver-pacientes-lista');
+    lista.innerHTML = '<div class="text-gray-500 p-4">Cargando pacientes...</div>';
+    fetch('/core/paciente/?q=')
+        .then(r => r.text())
+        .then(html => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const filas = tempDiv.querySelectorAll('table tbody tr');
+            if (!filas.length) {
+                lista.innerHTML = '<div class="text-gray-500 p-4">No hay pacientes registrados.</div>';
+                return;
+            }
+            lista.innerHTML = '';
+            filas.forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length) {
+                    const nombre = tds[0].innerText;
+                    const cedula = tds[1].innerText;
+                    const telefono = tds[2].innerText;
+                    const div = document.createElement('div');
+                    div.className = 'flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-gray-100 mb-2 bg-white shadow-sm hover:bg-blue-50 transition-colors duration-150 cursor-pointer';
+                    div.innerHTML = `
+                        <div>
+                            <div class="font-semibold text-gray-800 text-lg">${nombre}</div>
+                            <div class="text-sm text-gray-500">CI: ${cedula}</div>
+                            <div class="text-sm text-gray-500">Tel: ${telefono}</div>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-6 h-6 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m5-7a4 4 0 11-8 0 4 4 0 018 0zm6 4v-2a4 4 0 00-3-3.87"></path>
+                            </svg>
+                        </div>
+                    `;
+                    div.onclick = function() {
+                        const input = document.getElementById('paciente-search-input');
+                        if (input) {
+                            input.value = cedula;
+                            input.focus();
+                            cerrarModalVerPacientes();
+                        }
+                    };
+                    lista.appendChild(div);
+                }
+            });
+        })
+        .catch(() => {
+            lista.innerHTML = '<div class="text-red-500 p-4">Error al cargar pacientes.</div>';
+        });
+}
+
+function marcarSeleccion(div) {
+    const lista = document.getElementById('ver-pacientes-lista');
+    Array.from(lista.children).forEach(child => child.classList.remove('bg-blue-100'));
+    div.classList.add('bg-blue-100');
+}
+
+</script>
+<!-- Overlay y Modal Ver Pacientes -->
+<div id="modal-ver-pacientes-overlay" class="fixed inset-0 z-40 hidden flex items-center justify-center p-2 sm:p-4">
+    <div id="modal-ver-pacientes" class="z-50 bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-4 sm:p-8 relative max-h-full overflow-y-auto">
+        <button onclick="cerrarModalVerPacientes()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+        <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m5-7a4 4 0 11-8 0 4 4 0 018 0zm6 4v-2a4 4 0 00-3-3.87"></path>
+            </svg>
+            Lista de Pacientes
+        </h2>
+        <div id="ver-pacientes-lista" class="max-h-96 overflow-y-auto divide-y divide-gray-100">
+            <!-- Aquí se cargará la lista de pacientes -->
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}<!-- Overlay y Modal Agregar Paciente -->
+
+<div id="modal-ver-pacientes-overlay" class="fixed inset-0 z-40 hidden flex items-center justify-center">
+    <div id="modal-agregar-paciente" class="z-50 bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-8 relative">
+        <button onclick="cerrarModalPaciente()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+        <h2 class="text-2xl font-bold text-green-700 mb-6 flex items-center">
+            <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Agregar Paciente
+        </h2>
+        <form id="form-nuevo-paciente" autocomplete="off">
+            <!-- Aquí va el formulario de agregar paciente -->
+        </form>
+    </div>
+</div>

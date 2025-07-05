@@ -5,12 +5,21 @@ from django.db import models
 from applications.doctor.utils.cita_medica import EstadoCitaChoices
 from applications.doctor.utils.doctor import DiaSemanaChoices
 from applications.doctor.utils.pago import MetodoPagoChoices, EstadoPagoChoices
+from applications.core.models import Doctor
 
 """
     Modelo Patient: Representa los pacientes registrados en el sistema médico.
 """
 
 class HorarioAtencion(models.Model):
+    # Doctor al que pertenece este horario
+    doctor = models.ForeignKey(
+    'core.Doctor',
+    on_delete=models.CASCADE,
+    verbose_name="Doctor",
+    related_name="horarios",
+    default=1  # Cambia 1 por el ID de un doctor válido en tu base de datos
+)
 
     # Día de la semana (ej: lunes, martes...)
     dia_semana = models.CharField(
@@ -39,6 +48,13 @@ class HorarioAtencion(models.Model):
 
 class CitaMedica(models.Model):
     paciente = models.ForeignKey('core.Paciente', on_delete=models.CASCADE, verbose_name="Paciente", related_name="citas")
+    doctor = models.ForeignKey(
+    'core.Doctor',
+    on_delete=models.CASCADE,
+    verbose_name="Doctor",
+    related_name="citas",
+    default=1  # Cambia 1 por el ID de un doctor válido en tu base de datos
+)
     fecha = models.DateField(verbose_name="Fecha de la Cita")
     hora_cita = models.TimeField(verbose_name="Hora de la Cita")
 
@@ -70,6 +86,27 @@ class Atencion(models.Model):
         verbose_name="Paciente",
         related_name="atenciones",
         help_text="Paciente que recibe esta atención médica."
+    )
+    
+    # Doctor que realiza la atención
+    doctor = models.ForeignKey(
+    'core.Doctor',
+    on_delete=models.PROTECT,
+    verbose_name="Doctor",
+    related_name="atenciones",
+    help_text="Doctor que realiza la atención médica.",
+    default=1  # Asegúrate que el Doctor con ID 1 exista
+)
+    
+    # Cita médica asociada (opcional)
+    cita = models.ForeignKey(
+        CitaMedica,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Cita Médica",
+        related_name="atencion",
+        help_text="Cita médica que originó esta atención."
     )
 
     # Fecha y hora en que se realizó la atención
@@ -425,12 +462,6 @@ class DetallePago(models.Model):
 
     def __str__(self):
         return f"{self.servicio_adicional} - Cantidad: {self.cantidad} - Subtotal: {self.subtotal}"
-
-    class Meta: # type: ignore
-        verbose_name = "Detalle de Pago"
-        verbose_name_plural = "Detalles de Pagos"
-
-
 
     def actualizar_total_pago(self):
         """Actualiza el monto total del pago basado en todos los detalles"""

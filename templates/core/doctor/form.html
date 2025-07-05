@@ -15,6 +15,12 @@
                 <div class="bg-white dark:bg-secundario rounded-3xl p-8 max-w-6xl mx-auto" data-aos="fade-up" data-aos-delay="200">
                     {% csrf_token %}
                     
+                    {% if form.errors %}
+                      <div class="mb-4 text-red-600 text-lg font-semibold">
+                        {{ form.errors }}
+                      </div>
+                    {% endif %}
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Información Personal -->
                         <div class="space-y-4">

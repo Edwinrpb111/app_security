@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from applications.core.utils.medicamento import ViaAdministracion
 from applications.core.utils.paciente import EstadoCivilChoices, SexoChoices
-from proy_clinico.util import valida_cedula, valida_ruc
+from proy_clinico.util import valida_cedula, valida_ruc, cedula_valida
 from django.utils import timezone
 
 """Modelo que representa los diferentes tipos de sangre."""
@@ -34,7 +34,7 @@ class Paciente(models.Model):
     cedula_ecuatoriana = models.CharField(
         max_length=10,
         verbose_name="Cédula",
-        validators=[valida_cedula],
+        #validators=[cedula_valida],
         help_text="Ingrese el número de cédula sin espacios ni guiones."
     )
     dni = models.CharField(
@@ -48,7 +48,7 @@ class Paciente(models.Model):
     )
     fecha_nacimiento = models.DateField(
         verbose_name="Fecha de Nacimiento",
-        help_text="Formato: AAAA-MM-DD"
+        help_text="Formato: AAAA-MM-DD || MM/DD/AAA"
     )
     telefono = models.CharField(
         max_length=50,
@@ -248,7 +248,7 @@ class Doctor(models.Model):
         max_length=13,
         unique=True,
         verbose_name="Ruc",
-        validators=[valida_ruc],
+        #validators=[valida_ruc],
         help_text="Ingrese un RUC válido (persona natural, sociedad o extranjero)."
 
     )

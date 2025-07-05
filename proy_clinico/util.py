@@ -20,21 +20,19 @@ def valida_cedula(value):
 
     provincia = int(cedula[:2])
     if provincia < 1 or (provincia > 24 and provincia != 30):
-        raise ValidationError('El código de provincia en la cédula no es válido.')
+        raise ValidationError('El código de provincia no es válido.')
+
+    if int(cedula[2]) >= 6:
+        raise ValidationError('El tercer dígito no corresponde a una persona natural.')
 
     coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2]
-    total = 0
+    total = sum(
+        (d * c if (d * c) < 10 else (d * c - 9))
+        for d, c in zip(map(int, cedula[:9]), coeficientes)
+    )
 
-    for i in range(9):
-        digito = int(cedula[i])
-        producto = digito * coeficientes[i]
-        if producto > 9:
-            producto -= 9
-        total += producto
-
-    digito_verificador = (10 - (total % 10)) % 10
-
-    if digito_verificador != int(cedula[9]):
+    verificador = (10 - (total % 10)) % 10
+    if verificador != int(cedula[9]):
         raise ValidationError('La cédula ingresada no es válida.')
 
 def cedula_valida(cedula):

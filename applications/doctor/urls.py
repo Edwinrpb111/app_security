@@ -1,7 +1,7 @@
 from django.urls import path
 
-from applications.doctor.views.atencion_medica import AtencionListView, AtencionCreateView, AtencionUpdateView, AtencionDeleteView
-from applications.doctor.views.cita_medica import CitaMedicaListView, CitaMedicaCreateView, CitaMedicaUpdateView, CitaMedicaDeleteView
+from applications.doctor.views.atencion_medica import AtencionListView, AtencionCreateView, AtencionUpdateView, AtencionDeleteView, AtencionCreateFromCitaView, imprimir_receta_pdf
+from applications.doctor.views.cita_medica import CitaMedicaListView, CitaMedicaCreateView, CitaMedicaUpdateView, CitaMedicaDeleteView, calendario_eventos_api, CitaMedicaMainListView
 from applications.doctor.views.horario_atencion import HorarioAtencionListView, HorarioAtencionCreateView, HorarioAtencionUpdateView, HorarioAtencionDeleteView
 from applications.doctor.views.servicios_adicionales import ServiciosAdicionalesListView, ServiciosAdicionalesCreateView, ServiciosAdicionalesUpdateView, ServiciosAdicionalesDeleteView
 from applications.doctor.views.pago import PagoListView, PagoCreateView, PagoUpdateView, PagoDeleteView
@@ -12,14 +12,18 @@ urlpatterns = [
     # Rutas  para vistas relacionadas con Doctor
     path('atencion_list/', AtencionListView.as_view(), name="atencion_list"),
     path('atencion_create/', AtencionCreateView.as_view(), name="atencion_create"),
+    path('atencion_create_from_cita/<int:cita_id>/', AtencionCreateFromCitaView.as_view(), name="atencion_create_from_cita"),
     path('atencion_update/<int:pk>/', AtencionUpdateView.as_view(), name="atencion_update"),
     path('atencion_delete/<int:pk>/', AtencionDeleteView.as_view(), name="atencion_delete"),
+    path('receta_pdf/<int:atencion_id>/', imprimir_receta_pdf, name="imprimir_receta"),
 
     # Citas Médicas
-    path('cita-medica/', CitaMedicaListView.as_view(), name='cita_medica_list'),
+    path('cita-medica/', CitaMedicaMainListView.as_view(), name='cita_medica_list'),
+    path('cita-medica/list/', CitaMedicaListView.as_view(), name='cita_medica_list_view'),
     path('cita-medica/create/', CitaMedicaCreateView.as_view(), name='cita_medica_create'),
     path('cita-medica/update/<int:pk>/', CitaMedicaUpdateView.as_view(), name='cita_medica_update'),
     path('cita-medica/delete/<int:pk>/', CitaMedicaDeleteView.as_view(), name='cita_medica_delete'),
+    path('api/calendario-eventos/', calendario_eventos_api, name='calendario_eventos_api'),
     
     # Horarios de Atención
     path('horario-atencion/', HorarioAtencionListView.as_view(), name='horario_atencion_list'),

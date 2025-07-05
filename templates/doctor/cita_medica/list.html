@@ -21,13 +21,22 @@
                                 <p class="text-indigo-100 text-sm">Gestiona todas las citas médicas registradas en el sistema</p>
                             </div>
                         </div>
-                        <a href="{{ create_url }}" 
-                           class="inline-flex items-center px-6 py-3 bg-white hover:bg-slate-50 text-indigo-700 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Crear Nueva Cita Médica
-                        </a>
+                        <div class="flex gap-2">
+                            <a href="/doctor/cita-medica/" 
+                               class="inline-flex items-center px-6 py-3 bg-slate-100 hover:bg-slate-200 text-indigo-700 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                                </svg>
+                                Ver Calendario
+                            </a>
+                            <a href="{{ create_url }}" 
+                               class="inline-flex items-center px-6 py-3 bg-white hover:bg-slate-50 text-indigo-700 font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Crear Nueva Cita Médica
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -84,11 +93,40 @@
                                             <td class="px-6 py-4">{{ cita.hora_cita|time:"H:i" }}</td>
                                             <td class="px-6 py-4">
                                                 {% if cita.estado == 'programada' %}
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Programada</span>
-                                                {% elif cita.estado == 'completada' %}
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Completada</span>
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background-color: #fbbf24; color: #78350f;">
+                                                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: #fbbf24; display: inline-block;"></span>
+                                                        Programada
+                                                    </span>
+                                                {% elif cita.estado == 'confirmada' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background-color: #10b981; color: #064e3b;">
+                                                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: #10b981; display: inline-block;"></span>
+                                                        Confirmada
+                                                    </span>
                                                 {% elif cita.estado == 'cancelada' %}
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Cancelada</span>
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background-color: #ef4444; color: #7f1d1d;">
+                                                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: #ef4444; display: inline-block;"></span>
+                                                        Cancelada
+                                                    </span>
+                                                {% elif cita.estado == 'completada' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background-color: #6366f1; color: #1e1b4b;">
+                                                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: #6366f1; display: inline-block;"></span>
+                                                        Completada
+                                                    </span>
+                                                {% elif cita.estado == 'atendido' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background-color: #0ea5e9; color: #0c4a6e;">
+                                                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: #0ea5e9; display: inline-block;"></span>
+                                                        Atendido
+                                                    </span>
+                                                {% elif cita.estado == 'ocupado' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background-color: #a21caf; color: #581c87;">
+                                                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: #a21caf; display: inline-block;"></span>
+                                                        Ocupado
+                                                    </span>
+                                                {% elif cita.estado == 'disponible' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style="background-color: #fde68a; color: #92400e;">
+                                                        <span class="w-2 h-2 rounded-full mr-2" style="background-color: #fde68a; display: inline-block;"></span>
+                                                        Disponible
+                                                    </span>
                                                 {% else %}
                                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ cita.estado|capfirst }}</span>
                                                 {% endif %}
@@ -142,6 +180,7 @@
                     {% endif %}
                 </div>
             </div>
+            
         </div>
     </div>
 </div>
